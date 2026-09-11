@@ -1,0 +1,54 @@
+# .NET build artifacts
+bin/
+obj/
+out/
+
+# Visual Studio
+.vs/
+*.user
+*.suo
+*.userosscache
+*.sln.docstates
+
+# Rider / JetBrains
+.idea/
+
+# VS Code
+.vscode/
+
+# NuGet
+*.nupkg
+*.snupkg
+**/packages/*
+!**/packages/build/
+
+# Build results
+[Dd]ebug/
+[Dd]ebug[Aa]ny[Cc][Pp][Uu]/
+[Rr]elease/
+[Rr]elease[Aa]ny[Cc][Pp][Uu]/
+x64/
+x86/
+
+# EF Core
+*.mdf
+*.ldf
+*.ndf
+
+# User-specific files
+*.rsuser
+*.userprefs
+
+# Angular / Node
+node_modules/
+dist/
+npm-debug.log*
+
+# Environment / secrets
+appsettings.*.local.json
+*.env
+.env.local
+
+# OS files
+.DS_Store
+Thumbs.db

@@ -9,13 +9,13 @@ namespace BloodDonor.Infrastructure.Identity
 
         private readonly UserManager<ApplicationUser> _userManager;
         private readonly SignInManager<ApplicationUser> _signInManager;
+        private readonly ITokenService _tokenService;
 
-        public LoginService(
-            UserManager<ApplicationUser> userManager,
-            SignInManager<ApplicationUser> signInManager)
+        public LoginService(UserManager<ApplicationUser> userManager,SignInManager<ApplicationUser> signInManager,ITokenService tokenService)
         {
             _userManager = userManager;
             _signInManager = signInManager;
+            _tokenService = tokenService;
         }
 
         public async Task<LoginUserResult> LoginAsync(LoginUserRequest request)
@@ -37,12 +37,16 @@ namespace BloodDonor.Infrastructure.Identity
             }
 
             var roles = await _userManager.GetRolesAsync(user);
+            var rolesList = roles.ToList();
+
+            var accessToken = _tokenService.GenerateAccessToken(user.Id, user.Email!, rolesList);
 
             var response = new LoginUserResponse
             {
                 UserId = user.Id,
                 Email = user.Email!,
-                Roles = roles.ToList()
+                Roles = rolesList,
+                AccessToken = accessToken
             };
 
             return LoginUserResult.Success(response);

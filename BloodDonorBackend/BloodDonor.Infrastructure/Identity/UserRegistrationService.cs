@@ -17,17 +17,13 @@ namespace BloodDonor.Infrastructure.Identity
         {
             if (!PubliclyRegisterableRoles.Contains(request.RequestedRole))
             {
-                return RegisterUserResult.Failure(
-                    RegistrationErrorType.RoleNotAllowed,
-                    new[] { "The requested role is not available for self-registration." });
+                return RegisterUserResult.Failure(RegistrationErrorType.RoleNotAllowed,new[] { "The requested role is not available for self-registration." });
             }
 
             var existingUser = await _userManager.FindByEmailAsync(request.Email);
             if (existingUser != null)
             {
-                return RegisterUserResult.Failure(
-                    RegistrationErrorType.EmailAlreadyExists,
-                    new[] { "An account with this email already exists." });
+                return RegisterUserResult.Failure(RegistrationErrorType.EmailAlreadyExists,new[] { "An account with this email already exists." });
             }
 
             var newUser = new ApplicationUser
@@ -40,9 +36,7 @@ namespace BloodDonor.Infrastructure.Identity
             var createResult = await _userManager.CreateAsync(newUser, request.Password);
             if (!createResult.Succeeded)
             {
-                return RegisterUserResult.Failure(
-                    RegistrationErrorType.IdentityCreationFailed,
-                    createResult.Errors.Select(e => e.Description));
+                return RegisterUserResult.Failure(RegistrationErrorType.IdentityCreationFailed,createResult.Errors.Select(e => e.Description));
             }
 
             var roleResult = await _userManager.AddToRoleAsync(newUser, request.RequestedRole);
@@ -50,9 +44,7 @@ namespace BloodDonor.Infrastructure.Identity
             {
                 await _userManager.DeleteAsync(newUser);
 
-                return RegisterUserResult.Failure(
-                    RegistrationErrorType.IdentityCreationFailed,
-                    roleResult.Errors.Select(e => e.Description));
+                return RegisterUserResult.Failure(RegistrationErrorType.IdentityCreationFailed,roleResult.Errors.Select(e => e.Description));
             }
 
             var response = new RegisterUserResponse

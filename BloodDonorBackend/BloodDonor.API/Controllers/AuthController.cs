@@ -8,10 +8,14 @@ namespace BloodDonor.API.Controllers
     public class AuthController : ControllerBase
     {
         private readonly IUserRegistrationService _userRegistrationService;
-         
-        public AuthController(IUserRegistrationService userRegistrationService)
+        private readonly ILoginService _loginService;
+
+        public AuthController(
+            IUserRegistrationService userRegistrationService,
+            ILoginService loginService)
         {
             _userRegistrationService = userRegistrationService;
+            _loginService = loginService;
         }
 
         [HttpPost("register")]
@@ -50,6 +54,24 @@ namespace BloodDonor.API.Controllers
                     Title = "Registration failed."
                 })
             };
+        }
+
+        [HttpPost("login")]
+        public async Task<IActionResult> Login([FromBody] LoginUserRequest request)
+        {
+            var result = await _loginService.LoginAsync(request);
+
+            if (result.Succeeded)
+            {
+                return Ok(result.Response);
+            }
+
+            return Unauthorized(new ProblemDetails
+            {
+                Status = StatusCodes.Status401Unauthorized,
+                Title = "Login failed.",
+                Detail = result.ErrorMessage
+            });
         }
     }
 }

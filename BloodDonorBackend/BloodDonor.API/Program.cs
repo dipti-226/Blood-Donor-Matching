@@ -22,6 +22,7 @@ builder.Services.AddIdentity<ApplicationUser, IdentityRole>()
     .AddEntityFrameworkStores<ApplicationDbContext>();
 
 builder.Services.AddScoped<IUserRegistrationService, UserRegistrationService>();
+builder.Services.AddScoped<ILoginService, LoginService>();
 
 builder.Services.AddExceptionHandler<GlobalExceptionHandler>();
 builder.Services.AddProblemDetails();

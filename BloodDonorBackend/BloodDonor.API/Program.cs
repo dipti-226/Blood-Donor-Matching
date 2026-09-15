@@ -1,6 +1,8 @@
 using System.Text;
 using BloodDonor.API.Middleware;
 using BloodDonor.Application.Auth;
+using BloodDonor.Application.Donors;
+using BloodDonor.Infrastructure.Donors;
 using BloodDonor.Infrastructure.Identity;
 using BloodDonor.Infrastructure.Persistence;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
@@ -27,6 +29,7 @@ builder.Services.AddIdentity<ApplicationUser, IdentityRole>()
 builder.Services.AddScoped<IUserRegistrationService, UserRegistrationService>();
 builder.Services.AddScoped<ILoginService, LoginService>();
 builder.Services.AddScoped<ITokenService, JwtTokenService>();
+builder.Services.AddScoped<IDonorProfileService, DonorProfileService>();
 
 var jwtIssuer = builder.Configuration["Jwt:Issuer"]
     ?? throw new InvalidOperationException("Jwt:Issuer is not configured.");

@@ -1,4 +1,6 @@
-﻿using BloodDonor.Application.Auth;
+﻿using System.Security.Claims;
+using BloodDonor.Application.Auth;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 
 namespace BloodDonor.API.Controllers
@@ -71,6 +73,22 @@ namespace BloodDonor.API.Controllers
                 Status = StatusCodes.Status401Unauthorized,
                 Title = "Login failed.",
                 Detail = result.ErrorMessage
+            });
+        }
+
+        [Authorize]
+        [HttpGet("me")]
+        public IActionResult Me()
+        {
+            var userId = User.FindFirstValue(ClaimTypes.NameIdentifier);
+            var email = User.FindFirstValue(ClaimTypes.Email);
+            var roles = User.FindAll(ClaimTypes.Role).Select(c => c.Value).ToList();
+
+            return Ok(new
+            {
+                userId,
+                email,
+                roles
             });
         }
     }

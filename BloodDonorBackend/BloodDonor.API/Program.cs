@@ -1,7 +1,9 @@
 using System.Text;
 using BloodDonor.API.Middleware;
 using BloodDonor.Application.Auth;
+using BloodDonor.Application.BloodVerification;
 using BloodDonor.Application.Donors;
+using BloodDonor.Infrastructure.BloodVerification;
 using BloodDonor.Infrastructure.Donors;
 using BloodDonor.Infrastructure.Identity;
 using BloodDonor.Infrastructure.Persistence;
@@ -30,6 +32,7 @@ builder.Services.AddScoped<IUserRegistrationService, UserRegistrationService>();
 builder.Services.AddScoped<ILoginService, LoginService>();
 builder.Services.AddScoped<ITokenService, JwtTokenService>();
 builder.Services.AddScoped<IDonorProfileService, DonorProfileService>();
+builder.Services.AddScoped<IDonorBloodGroupVerificationService, DonorBloodGroupVerificationService>();
 
 var jwtIssuer = builder.Configuration["Jwt:Issuer"]
     ?? throw new InvalidOperationException("Jwt:Issuer is not configured.");

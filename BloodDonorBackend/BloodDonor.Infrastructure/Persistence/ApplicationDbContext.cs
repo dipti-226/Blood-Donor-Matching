@@ -14,12 +14,14 @@ namespace BloodDonor.Infrastructure.Persistence
         }
 
         public DbSet<DonorProfile> DonorProfiles => Set<DonorProfile>();
+        public DbSet<DonorBloodGroupVerification> DonorBloodGroupVerifications => Set<DonorBloodGroupVerification>();
 
         protected override void OnModelCreating(ModelBuilder builder)
         {
             base.OnModelCreating(builder);
 
             builder.ApplyConfiguration(new DonorProfileConfiguration());
+            builder.ApplyConfiguration(new DonorBloodGroupVerificationConfiguration());
         }
     }
 }

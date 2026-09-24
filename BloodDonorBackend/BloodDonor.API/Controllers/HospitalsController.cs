@@ -11,10 +11,14 @@ namespace BloodDonor.API.Controllers
     public class HospitalsController : ControllerBase
     {
         private readonly ICreateHospitalService _createHospitalService;
+        private readonly IHospitalQueryService _hospitalQueryService;
 
-        public HospitalsController(ICreateHospitalService createHospitalService)
+        public HospitalsController(
+            ICreateHospitalService createHospitalService,
+            IHospitalQueryService hospitalQueryService)
         {
             _createHospitalService = createHospitalService;
+            _hospitalQueryService = hospitalQueryService;
         }
 
         [HttpPost]
@@ -33,6 +37,32 @@ namespace BloodDonor.API.Controllers
                 Title = "Hospital creation failed.",
                 Detail = result.ErrorMessage
             });
+        }
+
+        [HttpGet("{id:guid}")]
+        public async Task<IActionResult> GetById(Guid id)
+        {
+            var result = await _hospitalQueryService.GetByIdAsync(id);
+
+            if (result.Succeeded)
+            {
+                return Ok(result.Response);
+            }
+
+            return NotFound(new ProblemDetails
+            {
+                Status = StatusCodes.Status404NotFound,
+                Title = "Hospital not found.",
+                Detail = result.ErrorMessage
+            });
+        }
+
+        [HttpGet]
+        public async Task<IActionResult> GetAll()
+        {
+            var hospitals = await _hospitalQueryService.GetAllAsync();
+
+            return Ok(hospitals);
         }
     }
 }

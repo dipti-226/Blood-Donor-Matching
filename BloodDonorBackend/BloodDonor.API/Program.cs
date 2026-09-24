@@ -37,6 +37,7 @@ builder.Services.AddScoped<ITokenService, JwtTokenService>();
 builder.Services.AddScoped<IDonorProfileService, DonorProfileService>();
 builder.Services.AddScoped<IDonorBloodGroupVerificationService, DonorBloodGroupVerificationService>();
 builder.Services.AddScoped<ICreateHospitalService, CreateHospitalService>();
+builder.Services.AddScoped<IHospitalQueryService, HospitalQueryService>();
 
 var jwtIssuer = builder.Configuration["Jwt:Issuer"]
     ?? throw new InvalidOperationException("Jwt:Issuer is not configured.");

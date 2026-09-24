@@ -12,13 +12,16 @@ namespace BloodDonor.API.Controllers
     {
         private readonly ICreateHospitalService _createHospitalService;
         private readonly IHospitalQueryService _hospitalQueryService;
+        private readonly IUpdateHospitalStatusService _updateHospitalStatusService;
 
         public HospitalsController(
             ICreateHospitalService createHospitalService,
-            IHospitalQueryService hospitalQueryService)
+            IHospitalQueryService hospitalQueryService,
+            IUpdateHospitalStatusService updateHospitalStatusService)
         {
             _createHospitalService = createHospitalService;
             _hospitalQueryService = hospitalQueryService;
+            _updateHospitalStatusService = updateHospitalStatusService;
         }
 
         [HttpPost]
@@ -63,6 +66,24 @@ namespace BloodDonor.API.Controllers
             var hospitals = await _hospitalQueryService.GetAllAsync();
 
             return Ok(hospitals);
+        }
+
+        [HttpPatch("{id:guid}/status")]
+        public async Task<IActionResult> UpdateStatus(Guid id, [FromBody] UpdateHospitalStatusRequest request)
+        {
+            var result = await _updateHospitalStatusService.UpdateStatusAsync(id, request);
+
+            if (result.Succeeded)
+            {
+                return Ok(result.Response);
+            }
+
+            return NotFound(new ProblemDetails
+            {
+                Status = StatusCodes.Status404NotFound,
+                Title = "Hospital not found.",
+                Detail = result.ErrorMessage
+            });
         }
     }
 }

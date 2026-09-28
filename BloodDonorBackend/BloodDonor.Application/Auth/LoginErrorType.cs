@@ -2,6 +2,6 @@
 {
     public enum LoginErrorType
     {
-        None, InvalidCredentials
+             None, InvalidCredentials
     }
 }

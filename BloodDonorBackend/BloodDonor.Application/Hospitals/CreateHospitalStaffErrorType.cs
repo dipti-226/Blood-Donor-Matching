@@ -1,9 +1,10 @@
 ﻿namespace BloodDonor.Application.Hospitals
 {
-    public enum CreateHospitalAdminErrorType
+    public enum CreateHospitalStaffErrorType
     {
         None,
         HospitalNotFound,
+        NotAuthorizedForHospital,
         EmailAlreadyExists,
         IdentityCreationFailed
     }

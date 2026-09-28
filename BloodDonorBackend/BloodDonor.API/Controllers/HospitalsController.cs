@@ -1,4 +1,5 @@
-﻿using BloodDonor.Application.Hospitals;
+﻿using System.Security.Claims;
+using BloodDonor.Application.Hospitals;
 using BloodDonor.Domain.Constants;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
@@ -7,7 +8,6 @@ namespace BloodDonor.API.Controllers
 {
     [ApiController]
     [Route("api/hospitals")]
-    [Authorize(Roles = Roles.SuperAdmin)]
     public class HospitalsController : ControllerBase
     {
         private readonly ICreateHospitalService _createHospitalService;
@@ -24,6 +24,7 @@ namespace BloodDonor.API.Controllers
             _updateHospitalStatusService = updateHospitalStatusService;
         }
 
+        [Authorize(Roles = Roles.SuperAdmin)]
         [HttpPost]
         public async Task<IActionResult> CreateHospital([FromBody] CreateHospitalRequest request)
         {
@@ -42,14 +43,28 @@ namespace BloodDonor.API.Controllers
             });
         }
 
+        [Authorize(Roles = Roles.SuperAdmin + "," + Roles.HospitalAdmin)]
         [HttpGet("{id:guid}")]
         public async Task<IActionResult> GetById(Guid id)
         {
-            var result = await _hospitalQueryService.GetByIdAsync(id);
+            var callerUserId = User.FindFirstValue(ClaimTypes.NameIdentifier)!;
+            var isSuperAdmin = User.IsInRole(Roles.SuperAdmin);
+
+            var result = await _hospitalQueryService.GetByIdAsync(id, callerUserId, isSuperAdmin);
 
             if (result.Succeeded)
             {
                 return Ok(result.Response);
+            }
+
+            if (result.ErrorType == HospitalErrorType.NotAuthorizedForHospital)
+            {
+                return StatusCode(StatusCodes.Status403Forbidden, new ProblemDetails
+                {
+                    Status = StatusCodes.Status403Forbidden,
+                    Title = "Hospital access denied.",
+                    Detail = result.ErrorMessage
+                });
             }
 
             return NotFound(new ProblemDetails
@@ -60,6 +75,7 @@ namespace BloodDonor.API.Controllers
             });
         }
 
+        [Authorize(Roles = Roles.SuperAdmin)]
         [HttpGet]
         public async Task<IActionResult> GetAll()
         {
@@ -68,6 +84,7 @@ namespace BloodDonor.API.Controllers
             return Ok(hospitals);
         }
 
+        [Authorize(Roles = Roles.SuperAdmin)]
         [HttpPatch("{id:guid}/status")]
         public async Task<IActionResult> UpdateStatus(Guid id, [FromBody] UpdateHospitalStatusRequest request)
         {

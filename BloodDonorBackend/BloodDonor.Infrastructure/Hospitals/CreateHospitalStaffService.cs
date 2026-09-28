@@ -8,12 +8,12 @@ using Microsoft.EntityFrameworkCore;
 
 namespace BloodDonor.Infrastructure.Hospitals
 {
-    public class CreateHospitalAdminService : ICreateHospitalAdminService
+    public class CreateHospitalStaffService : ICreateHospitalStaffService
     {
         private readonly ApplicationDbContext _dbContext;
         private readonly UserManager<ApplicationUser> _userManager;
 
-        public CreateHospitalAdminService(
+        public CreateHospitalStaffService(
             ApplicationDbContext dbContext,
             UserManager<ApplicationUser> userManager)
         {
@@ -21,18 +21,30 @@ namespace BloodDonor.Infrastructure.Hospitals
             _userManager = userManager;
         }
 
-        public async Task<CreateHospitalAdminResult> CreateHospitalAdminAsync(
+        public async Task<CreateHospitalStaffResult> CreateHospitalStaffAsync(
             Guid hospitalId,
-            CreateHospitalAdminRequest request)
+            string callerUserId,
+            CreateHospitalStaffRequest request)
         {
             var hospitalExists = await _dbContext.Hospitals
                 .AnyAsync(h => h.Id == hospitalId);
 
             if (!hospitalExists)
             {
-                return CreateHospitalAdminResult.Failure(
-                    CreateHospitalAdminErrorType.HospitalNotFound,
+                return CreateHospitalStaffResult.Failure(
+                    CreateHospitalStaffErrorType.HospitalNotFound,
                     "No hospital exists with the specified id.");
+            }
+
+            var callerMembership = await _dbContext.HospitalUsers
+                .AsNoTracking()
+                .FirstOrDefaultAsync(hu => hu.UserId == callerUserId);
+
+            if (callerMembership == null || callerMembership.HospitalId != hospitalId)
+            {
+                return CreateHospitalStaffResult.Failure(
+                    CreateHospitalStaffErrorType.NotAuthorizedForHospital,
+                    "You are not authorized to manage staff for this hospital.");
             }
 
             await using var transaction = await _dbContext.Database.BeginTransactionAsync();
@@ -54,8 +66,8 @@ namespace BloodDonor.Infrastructure.Hospitals
 
                 if (isDuplicateEmail)
                 {
-                    return CreateHospitalAdminResult.Failure(
-                        CreateHospitalAdminErrorType.EmailAlreadyExists,
+                    return CreateHospitalStaffResult.Failure(
+                        CreateHospitalStaffErrorType.EmailAlreadyExists,
                         "A user with this email already exists.");
                 }
 
@@ -64,17 +76,17 @@ namespace BloodDonor.Infrastructure.Hospitals
                 // is not committed, so disposing it rolls everything back.
                 var identityErrors = string.Join(" ", createResult.Errors.Select(e => e.Description));
 
-                return CreateHospitalAdminResult.Failure(
-                    CreateHospitalAdminErrorType.IdentityCreationFailed,
+                return CreateHospitalStaffResult.Failure(
+                    CreateHospitalStaffErrorType.IdentityCreationFailed,
                     identityErrors);
             }
 
-            var roleResult = await _userManager.AddToRoleAsync(user, Roles.HospitalAdmin);
+            var roleResult = await _userManager.AddToRoleAsync(user, Roles.HospitalStaff);
 
             if (!roleResult.Succeeded)
             {
                 var combinedErrors = string.Join(" ", roleResult.Errors.Select(e => e.Description));
-                throw new InvalidOperationException($"Hospital admin role assignment failed: {combinedErrors}");
+                throw new InvalidOperationException($"Hospital staff role assignment failed: {combinedErrors}");
             }
 
             var now = DateTime.UtcNow;
@@ -93,7 +105,7 @@ namespace BloodDonor.Infrastructure.Hospitals
 
             await transaction.CommitAsync();
 
-            return CreateHospitalAdminResult.Success(new HospitalAdminResponse
+            return CreateHospitalStaffResult.Success(new HospitalStaffResponse
             {
                 HospitalUserId = hospitalUser.Id,
                 HospitalId = hospitalUser.HospitalId,

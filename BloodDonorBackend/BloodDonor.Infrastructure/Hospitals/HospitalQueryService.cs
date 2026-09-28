@@ -14,7 +14,7 @@ namespace BloodDonor.Infrastructure.Hospitals
             _dbContext = dbContext;
         }
 
-        public async Task<HospitalResult> GetByIdAsync(Guid id)
+        public async Task<HospitalResult> GetByIdAsync(Guid id, string callerUserId, bool isSuperAdmin)
         {
             var hospital = await _dbContext.Hospitals
                 .AsNoTracking()
@@ -25,6 +25,20 @@ namespace BloodDonor.Infrastructure.Hospitals
                 return HospitalResult.Failure(
                     HospitalErrorType.HospitalNotFound,
                     "No hospital exists with the specified id.");
+            }
+
+            if (!isSuperAdmin)
+            {
+                var membership = await _dbContext.HospitalUsers
+                    .AsNoTracking()
+                    .FirstOrDefaultAsync(hu => hu.UserId == callerUserId);
+
+                if (membership == null || membership.HospitalId != id)
+                {
+                    return HospitalResult.Failure(
+                        HospitalErrorType.NotAuthorizedForHospital,
+                        "You are not authorized to view this hospital.");
+                }
             }
 
             return HospitalResult.Success(MapToResponse(hospital));

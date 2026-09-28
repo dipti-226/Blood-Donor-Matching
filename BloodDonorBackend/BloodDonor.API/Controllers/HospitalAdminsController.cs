@@ -43,6 +43,12 @@ namespace BloodDonor.API.Controllers
                     Title = "Hospital admin creation failed.",
                     Detail = result.ErrorMessage
                 }),
+                CreateHospitalAdminErrorType.IdentityCreationFailed => BadRequest(new ProblemDetails
+                {
+                    Status = StatusCodes.Status400BadRequest,
+                    Title = "Hospital admin creation failed.",
+                    Detail = result.ErrorMessage
+                }),
                 _ => BadRequest(new ProblemDetails
                 {
                     Status = StatusCodes.Status400BadRequest,

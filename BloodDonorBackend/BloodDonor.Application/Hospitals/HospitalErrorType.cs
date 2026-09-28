@@ -3,6 +3,7 @@
     public enum HospitalErrorType
     {
         None,
-        HospitalNotFound
+        HospitalNotFound,
+        NotAuthorizedForHospital
     }
 }

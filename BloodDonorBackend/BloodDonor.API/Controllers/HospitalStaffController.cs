@@ -12,10 +12,14 @@ namespace BloodDonor.API.Controllers
     public class HospitalStaffController : ControllerBase
     {
         private readonly ICreateHospitalStaffService _createHospitalStaffService;
+        private readonly IHospitalStaffQueryService _hospitalStaffQueryService;
 
-        public HospitalStaffController(ICreateHospitalStaffService createHospitalStaffService)
+        public HospitalStaffController(
+            ICreateHospitalStaffService createHospitalStaffService,
+            IHospitalStaffQueryService hospitalStaffQueryService)
         {
             _createHospitalStaffService = createHospitalStaffService;
+            _hospitalStaffQueryService = hospitalStaffQueryService;
         }
 
         [HttpPost]
@@ -65,6 +69,42 @@ namespace BloodDonor.API.Controllers
                 {
                     Status = StatusCodes.Status400BadRequest,
                     Title = "Hospital staff creation failed."
+                })
+            };
+        }
+
+        [HttpGet]
+        public async Task<IActionResult> GetHospitalStaff(Guid hospitalId)
+        {
+            var callerUserId = User.FindFirstValue(ClaimTypes.NameIdentifier)!;
+
+            var result = await _hospitalStaffQueryService.GetStaffAsync(hospitalId, callerUserId);
+
+            if (result.Succeeded)
+            {
+                return Ok(result.Response);
+            }
+
+            return result.ErrorType switch
+            {
+                HospitalStaffQueryErrorType.HospitalNotFound => NotFound(new ProblemDetails
+                {
+                    Status = StatusCodes.Status404NotFound,
+                    Title = "Hospital staff retrieval failed.",
+                    Detail = result.ErrorMessage
+                }),
+                HospitalStaffQueryErrorType.NotAuthorizedForHospital => StatusCode(
+                    StatusCodes.Status403Forbidden,
+                    new ProblemDetails
+                    {
+                        Status = StatusCodes.Status403Forbidden,
+                        Title = "Hospital staff retrieval failed.",
+                        Detail = result.ErrorMessage
+                    }),
+                _ => BadRequest(new ProblemDetails
+                {
+                    Status = StatusCodes.Status400BadRequest,
+                    Title = "Hospital staff retrieval failed."
                 })
             };
         }

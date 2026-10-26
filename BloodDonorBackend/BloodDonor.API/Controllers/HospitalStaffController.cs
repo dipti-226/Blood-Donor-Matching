@@ -14,23 +14,18 @@ namespace BloodDonor.API.Controllers
         private readonly ICreateHospitalStaffService _createHospitalStaffService;
         private readonly IHospitalStaffQueryService _hospitalStaffQueryService;
 
-        public HospitalStaffController(
-            ICreateHospitalStaffService createHospitalStaffService,
-            IHospitalStaffQueryService hospitalStaffQueryService)
+        public HospitalStaffController(ICreateHospitalStaffService createHospitalStaffService,IHospitalStaffQueryService hospitalStaffQueryService)
         {
             _createHospitalStaffService = createHospitalStaffService;
             _hospitalStaffQueryService = hospitalStaffQueryService;
         }
 
         [HttpPost]
-        public async Task<IActionResult> CreateHospitalStaff(
-            Guid hospitalId,
-            [FromBody] CreateHospitalStaffRequest request)
+        public async Task<IActionResult> CreateHospitalStaff(Guid hospitalId, [FromBody] CreateHospitalStaffRequest request)
         {
             var callerUserId = User.FindFirstValue(ClaimTypes.NameIdentifier)!;
 
-            var result = await _createHospitalStaffService.CreateHospitalStaffAsync(
-                hospitalId, callerUserId, request);
+            var result = await _createHospitalStaffService.CreateHospitalStaffAsync(hospitalId, callerUserId, request);
 
             if (result.Succeeded)
             {
@@ -45,9 +40,7 @@ namespace BloodDonor.API.Controllers
                     Title = "Hospital staff creation failed.",
                     Detail = result.ErrorMessage
                 }),
-                CreateHospitalStaffErrorType.NotAuthorizedForHospital => StatusCode(
-                    StatusCodes.Status403Forbidden,
-                    new ProblemDetails
+                CreateHospitalStaffErrorType.NotAuthorizedForHospital => StatusCode(StatusCodes.Status403Forbidden,new ProblemDetails
                     {
                         Status = StatusCodes.Status403Forbidden,
                         Title = "Hospital staff creation failed.",
@@ -93,9 +86,7 @@ namespace BloodDonor.API.Controllers
                     Title = "Hospital staff retrieval failed.",
                     Detail = result.ErrorMessage
                 }),
-                HospitalStaffQueryErrorType.NotAuthorizedForHospital => StatusCode(
-                    StatusCodes.Status403Forbidden,
-                    new ProblemDetails
+                HospitalStaffQueryErrorType.NotAuthorizedForHospital => StatusCode(StatusCodes.Status403Forbidden,new ProblemDetails
                     {
                         Status = StatusCodes.Status403Forbidden,
                         Title = "Hospital staff retrieval failed.",

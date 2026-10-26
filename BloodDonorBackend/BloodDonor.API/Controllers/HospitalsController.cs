@@ -13,15 +13,18 @@ namespace BloodDonor.API.Controllers
         private readonly ICreateHospitalService _createHospitalService;
         private readonly IHospitalQueryService _hospitalQueryService;
         private readonly IUpdateHospitalStatusService _updateHospitalStatusService;
+        private readonly IUpdateHospitalService _updateHospitalService;
 
         public HospitalsController(
             ICreateHospitalService createHospitalService,
             IHospitalQueryService hospitalQueryService,
-            IUpdateHospitalStatusService updateHospitalStatusService)
+            IUpdateHospitalStatusService updateHospitalStatusService,
+            IUpdateHospitalService updateHospitalService)
         {
             _createHospitalService = createHospitalService;
             _hospitalQueryService = hospitalQueryService;
             _updateHospitalStatusService = updateHospitalStatusService;
+            _updateHospitalService = updateHospitalService;
         }
 
         [Authorize(Roles = Roles.SuperAdmin)]
@@ -99,6 +102,37 @@ namespace BloodDonor.API.Controllers
             {
                 Status = StatusCodes.Status404NotFound,
                 Title = "Hospital not found.",
+                Detail = result.ErrorMessage
+            });
+        }
+
+        [Authorize(Roles = Roles.HospitalAdmin)]
+        [HttpPut("{id:guid}")]
+        public async Task<IActionResult> UpdateHospital(Guid id, [FromBody] UpdateHospitalRequest request)
+        {
+            var callerUserId = User.FindFirstValue(ClaimTypes.NameIdentifier)!;
+
+            var result = await _updateHospitalService.UpdateHospitalAsync(id, callerUserId, request);
+
+            if (result.Succeeded)
+            {
+                return Ok(result.Response);
+            }
+
+            if (result.ErrorType == HospitalErrorType.NotAuthorizedForHospital)
+            {
+                return StatusCode(StatusCodes.Status403Forbidden, new ProblemDetails
+                {
+                    Status = StatusCodes.Status403Forbidden,
+                    Title = "Hospital update failed.",
+                    Detail = result.ErrorMessage
+                });
+            }
+
+            return NotFound(new ProblemDetails
+            {
+                Status = StatusCodes.Status404NotFound,
+                Title = "Hospital update failed.",
                 Detail = result.ErrorMessage
             });
         }

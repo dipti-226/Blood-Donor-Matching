@@ -38,16 +38,14 @@ builder.Services.AddScoped<IDonorBloodGroupVerificationService, DonorBloodGroupV
 builder.Services.AddScoped<ICreateHospitalService, CreateHospitalService>();
 builder.Services.AddScoped<IHospitalQueryService, HospitalQueryService>();
 builder.Services.AddScoped<IUpdateHospitalStatusService, UpdateHospitalStatusService>();
+builder.Services.AddScoped<IUpdateHospitalService, UpdateHospitalService>();
 builder.Services.AddScoped<ICreateHospitalAdminService, CreateHospitalAdminService>();
 builder.Services.AddScoped<ICreateHospitalStaffService, CreateHospitalStaffService>();
 builder.Services.AddScoped<IHospitalStaffQueryService, HospitalStaffQueryService>();
 
-var jwtIssuer = builder.Configuration["Jwt:Issuer"]
-    ?? throw new InvalidOperationException("Jwt:Issuer is not configured.");
-var jwtAudience = builder.Configuration["Jwt:Audience"]
-    ?? throw new InvalidOperationException("Jwt:Audience is not configured.");
-var jwtSigningKey = builder.Configuration["Jwt:SigningKey"]
-    ?? throw new InvalidOperationException("Jwt:SigningKey is not configured.");
+var jwtIssuer = builder.Configuration["Jwt:Issuer"] ?? throw new InvalidOperationException("Jwt:Issuer is not configured.");
+var jwtAudience = builder.Configuration["Jwt:Audience"] ?? throw new InvalidOperationException("Jwt:Audience is not configured.");
+var jwtSigningKey = builder.Configuration["Jwt:SigningKey"] ?? throw new InvalidOperationException("Jwt:SigningKey is not configured.");
 
 builder.Services.AddAuthentication(options =>
 {

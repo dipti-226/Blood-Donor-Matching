@@ -12,9 +12,7 @@ namespace BloodDonor.API.Controllers
         private readonly IUserRegistrationService _userRegistrationService;
         private readonly ILoginService _loginService;
 
-        public AuthController(
-            IUserRegistrationService userRegistrationService,
-            ILoginService loginService)
+        public AuthController(IUserRegistrationService userRegistrationService,ILoginService loginService)
         {
             _userRegistrationService = userRegistrationService;
             _loginService = loginService;

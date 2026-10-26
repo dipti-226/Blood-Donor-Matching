@@ -18,9 +18,7 @@ namespace BloodDonor.API.Controllers
         }
 
         [HttpPost]
-        public async Task<IActionResult> CreateHospitalAdmin(
-            Guid hospitalId,
-            [FromBody] CreateHospitalAdminRequest request)
+        public async Task<IActionResult> CreateHospitalAdmin(Guid hospitalId, [FromBody] CreateHospitalAdminRequest request)
         {
             var result = await _createHospitalAdminService.CreateHospitalAdminAsync(hospitalId, request);
 

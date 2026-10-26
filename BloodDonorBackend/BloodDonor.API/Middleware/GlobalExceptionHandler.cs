@@ -12,15 +12,9 @@ namespace BloodDonor.API.Middleware
             _logger = logger;
         }
 
-        public async ValueTask<bool> TryHandleAsync(
-            HttpContext httpContext,
-            Exception exception,
-            CancellationToken cancellationToken)
+        public async ValueTask<bool> TryHandleAsync(HttpContext httpContext, Exception exception, CancellationToken cancellationToken)
         {
-            _logger.LogError(
-                exception,
-                "Unhandled exception occurred: {Message}",
-                exception.Message);
+            _logger.LogError(exception, "Unhandled exception occurred: {Message}", exception.Message);
 
             var problemDetails = new ProblemDetails
             {

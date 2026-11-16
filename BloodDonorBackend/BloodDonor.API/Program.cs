@@ -37,6 +37,7 @@ builder.Services.AddScoped<IDonorProfileService, DonorProfileService>();
 builder.Services.AddScoped<IDonorBloodGroupVerificationService, DonorBloodGroupVerificationService>();
 builder.Services.AddScoped<IReviewBloodGroupVerificationService, ReviewBloodGroupVerificationService>();
 builder.Services.AddScoped<IBloodGroupVerificationQueryService, BloodGroupVerificationQueryService>();
+builder.Services.AddScoped<IResubmitBloodGroupService, ResubmitBloodGroupService>();
 builder.Services.AddScoped<ICreateHospitalService, CreateHospitalService>();
 builder.Services.AddScoped<IHospitalQueryService, HospitalQueryService>();
 builder.Services.AddScoped<IUpdateHospitalStatusService, UpdateHospitalStatusService>();

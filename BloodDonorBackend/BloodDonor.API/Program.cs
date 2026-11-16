@@ -4,6 +4,7 @@ using BloodDonor.Application.Auth;
 using BloodDonor.Application.BloodVerification;
 using BloodDonor.Application.Donors;
 using BloodDonor.Application.Hospitals;
+using BloodDonor.Application.Compatibility;
 using BloodDonor.Infrastructure.BloodVerification;
 using BloodDonor.Infrastructure.Donors;
 using BloodDonor.Infrastructure.Hospitals;
@@ -45,6 +46,8 @@ builder.Services.AddScoped<IUpdateHospitalService, UpdateHospitalService>();
 builder.Services.AddScoped<ICreateHospitalAdminService, CreateHospitalAdminService>();
 builder.Services.AddScoped<ICreateHospitalStaffService, CreateHospitalStaffService>();
 builder.Services.AddScoped<IHospitalStaffQueryService, HospitalStaffQueryService>();
+//It’s a singleton because the service is stateless:
+builder.Services.AddSingleton<IBloodCompatibilityService, BloodCompatibilityService>();
 
 var jwtIssuer = builder.Configuration["Jwt:Issuer"] ?? throw new InvalidOperationException("Jwt:Issuer is not configured.");
 var jwtAudience = builder.Configuration["Jwt:Audience"] ?? throw new InvalidOperationException("Jwt:Audience is not configured.");

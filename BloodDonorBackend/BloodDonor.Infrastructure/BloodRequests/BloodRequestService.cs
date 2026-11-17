@@ -1,0 +1,124 @@
+﻿using BloodDonor.Application.BloodRequests;
+using BloodDonor.Domain.Entities;
+using BloodDonor.Infrastructure.Persistence;
+using Microsoft.EntityFrameworkCore;
+
+namespace BloodDonor.Infrastructure.BloodRequests
+{
+    public class BloodRequestService : IBloodRequestService
+    {
+        private readonly ApplicationDbContext _dbContext;
+
+        public BloodRequestService(ApplicationDbContext dbContext)
+        {
+            _dbContext = dbContext;
+        }
+
+        public async Task<BloodRequestResult> CreateAsync(string userId, CreateBloodRequestRequest request)
+        {
+            var hospitalId = await ActiveHospitalResolver.GetActiveHospitalIdAsync(_dbContext, userId);
+
+            if (hospitalId == null)
+            {
+                return NotAuthorizedResult();
+            }
+
+            var now = DateTime.UtcNow;
+
+            var bloodRequest = new BloodRequest
+            {
+                Id = Guid.NewGuid(),
+                HospitalId = hospitalId.Value,
+                CreatedByUserId = userId,
+                PatientBloodGroup = request.PatientBloodGroup!.Value,
+                Component = request.Component!.Value,
+                UnitsRequired = request.UnitsRequired,
+                Urgency = request.Urgency!.Value,
+                Status = BloodRequestStatus.Open,
+                CreatedAt = now,
+                UpdatedAt = now
+            };
+
+            _dbContext.BloodRequests.Add(bloodRequest);
+            await _dbContext.SaveChangesAsync();
+
+            return BloodRequestResult.Success(BloodRequestMapping.Map(bloodRequest));
+        }
+
+        public Task<BloodRequestResult> FulfillAsync(string userId, Guid bloodRequestId)
+        {
+            return CloseAsync(userId, bloodRequestId, BloodRequestStatus.Fulfilled, null);
+        }
+
+        public Task<BloodRequestResult> CancelAsync(string userId, Guid bloodRequestId, CancelBloodRequestRequest request)
+        {
+            return CloseAsync(userId, bloodRequestId, BloodRequestStatus.Cancelled, request.Reason.Trim());
+        }
+
+        private async Task<BloodRequestResult> CloseAsync(
+            string userId,
+            Guid bloodRequestId,
+            BloodRequestStatus newStatus,
+            string? cancellationReason)
+        {
+            var hospitalId = await ActiveHospitalResolver.GetActiveHospitalIdAsync(_dbContext, userId);
+
+            if (hospitalId == null)
+            {
+                return NotAuthorizedResult();
+            }
+
+            var now = DateTime.UtcNow;
+            DateTime? closedAt = now;
+            string? closedBy = userId;
+            var ownHospitalId = hospitalId.Value;
+
+            // Atomic conditional update: only an Open request of the caller's own hospital can be closed,
+            // so two staff acting at the same time cannot both succeed.
+            var affectedRows = await _dbContext.BloodRequests
+                .Where(r => r.Id == bloodRequestId
+                            && r.HospitalId == ownHospitalId
+                            && r.Status == BloodRequestStatus.Open)
+                .ExecuteUpdateAsync(setters => setters
+                    .SetProperty(r => r.Status, newStatus)
+                    .SetProperty(r => r.ClosedAt, closedAt)
+                    .SetProperty(r => r.ClosedByUserId, closedBy)
+                    .SetProperty(r => r.CancellationReason, cancellationReason)
+                    .SetProperty(r => r.UpdatedAt, now));
+
+            if (affectedRows == 0)
+            {
+                // A request belonging to another hospital is reported as not found,
+                // so its existence is never revealed.
+                var existsInOwnHospital = await _dbContext.BloodRequests
+                    .AnyAsync(r => r.Id == bloodRequestId && r.HospitalId == ownHospitalId);
+
+                if (!existsInOwnHospital)
+                {
+                    return BloodRequestResult.Failure(
+                        BloodRequestErrorType.RequestNotFound,
+                        "No blood request exists with the specified id.");
+                }
+
+                return BloodRequestResult.Failure(
+                    BloodRequestErrorType.RequestNotOpen,
+                    "This blood request is no longer open.");
+            }
+
+            var response = await _dbContext.BloodRequests
+                .AsNoTracking()
+                .Where(r => r.Id == bloodRequestId)
+                .Select(BloodRequestMapping.ToResponse)
+                .FirstAsync();
+
+            return BloodRequestResult.Success(response);
+        }
+
+        private static BloodRequestResult NotAuthorizedResult()
+        {
+            return BloodRequestResult.Failure(
+                BloodRequestErrorType.NotAuthorized,
+                "You are not authorized to manage blood requests.");
+        }
+    }
+}

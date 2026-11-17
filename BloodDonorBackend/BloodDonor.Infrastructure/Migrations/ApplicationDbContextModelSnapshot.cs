@@ -174,6 +174,11 @@ namespace BloodDonor.Infrastructure.Migrations
                         .HasMaxLength(20)
                         .HasColumnType("nvarchar(20)");
 
+                    b.Property<bool>("IsAvailableForRequests")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("bit")
+                        .HasDefaultValue(false);
+
                     b.Property<string>("Pincode")
                         .IsRequired()
                         .HasMaxLength(10)

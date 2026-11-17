@@ -48,6 +48,10 @@ namespace BloodDonor.Infrastructure.Persistence.Configurations
             builder.Property(d => d.Pincode)
                 .IsRequired()
                 .HasMaxLength(10);
+
+            builder.Property(d => d.IsAvailableForRequests)
+                .IsRequired()
+                .HasDefaultValue(false);
         }
     }
 }

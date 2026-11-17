@@ -137,6 +137,32 @@ namespace BloodDonor.Infrastructure.Migrations
                     b.ToTable("DonorBloodGroupVerifications", (string)null);
                 });
 
+            modelBuilder.Entity("BloodDonor.Domain.Entities.DonorContactAccessLog", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<DateTime>("AccessedAt")
+                        .HasColumnType("datetime2");
+
+                    b.Property<string>("AccessedByUserId")
+                        .IsRequired()
+                        .HasMaxLength(450)
+                        .HasColumnType("nvarchar(450)");
+
+                    b.Property<Guid>("DonorRequestId")
+                        .HasColumnType("uniqueidentifier");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("AccessedByUserId");
+
+                    b.HasIndex("DonorRequestId");
+
+                    b.ToTable("DonorContactAccessLogs", (string)null);
+                });
+
             modelBuilder.Entity("BloodDonor.Domain.Entities.DonorProfile", b =>
                 {
                     b.Property<Guid>("Id")
@@ -198,6 +224,55 @@ namespace BloodDonor.Infrastructure.Migrations
                         .IsUnique();
 
                     b.ToTable("DonorProfiles", (string)null);
+                });
+
+            modelBuilder.Entity("BloodDonor.Domain.Entities.DonorRequest", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<Guid>("BloodRequestId")
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<string>("ContactNumber")
+                        .HasMaxLength(20)
+                        .HasColumnType("nvarchar(20)");
+
+                    b.Property<DateTime>("CreatedAt")
+                        .HasColumnType("datetime2");
+
+                    b.Property<string>("CreatedByUserId")
+                        .IsRequired()
+                        .HasMaxLength(450)
+                        .HasColumnType("nvarchar(450)");
+
+                    b.Property<Guid>("DonorProfileId")
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<DateTime?>("RespondedAt")
+                        .HasColumnType("datetime2");
+
+                    b.Property<string>("Status")
+                        .IsRequired()
+                        .HasMaxLength(20)
+                        .HasColumnType("nvarchar(20)");
+
+                    b.Property<DateTime>("UpdatedAt")
+                        .HasColumnType("datetime2");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("CreatedByUserId");
+
+                    b.HasIndex("BloodRequestId", "DonorProfileId")
+                        .IsUnique();
+
+                    b.HasIndex("BloodRequestId", "Status");
+
+                    b.HasIndex("DonorProfileId", "Status");
+
+                    b.ToTable("DonorRequests", (string)null);
                 });
 
             modelBuilder.Entity("BloodDonor.Domain.Entities.Hospital", b =>
@@ -523,12 +598,48 @@ namespace BloodDonor.Infrastructure.Migrations
                         .IsRequired();
                 });
 
+            modelBuilder.Entity("BloodDonor.Domain.Entities.DonorContactAccessLog", b =>
+                {
+                    b.HasOne("BloodDonor.Infrastructure.Identity.ApplicationUser", null)
+                        .WithMany()
+                        .HasForeignKey("AccessedByUserId")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired();
+
+                    b.HasOne("BloodDonor.Domain.Entities.DonorRequest", null)
+                        .WithMany()
+                        .HasForeignKey("DonorRequestId")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired();
+                });
+
             modelBuilder.Entity("BloodDonor.Domain.Entities.DonorProfile", b =>
                 {
                     b.HasOne("BloodDonor.Infrastructure.Identity.ApplicationUser", null)
                         .WithOne()
                         .HasForeignKey("BloodDonor.Domain.Entities.DonorProfile", "UserId")
                         .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+                });
+
+            modelBuilder.Entity("BloodDonor.Domain.Entities.DonorRequest", b =>
+                {
+                    b.HasOne("BloodDonor.Domain.Entities.BloodRequest", null)
+                        .WithMany()
+                        .HasForeignKey("BloodRequestId")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired();
+
+                    b.HasOne("BloodDonor.Infrastructure.Identity.ApplicationUser", null)
+                        .WithMany()
+                        .HasForeignKey("CreatedByUserId")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired();
+
+                    b.HasOne("BloodDonor.Domain.Entities.DonorProfile", null)
+                        .WithMany()
+                        .HasForeignKey("DonorProfileId")
+                        .OnDelete(DeleteBehavior.Restrict)
                         .IsRequired();
                 });
 

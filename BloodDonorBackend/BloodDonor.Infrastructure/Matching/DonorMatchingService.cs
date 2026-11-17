@@ -64,48 +64,32 @@ namespace BloodDonor.Infrastructure.Matching
             var areaKey = hospital.Area.Trim().ToLowerInvariant();
             var patientGroup = bloodRequest.PatientBloodGroup;
 
-            // Compatibility is computed from the VERIFIED blood group (never the declared one)
-            // using the deterministic rules in the compatibility service.
             var compatibleGroups = _compatibilityService
                 .GetCompatibleDonorBloodGroups(patientGroup, bloodRequest.Component)
                 .ToList();
 
-            var candidates =
-                from v in _dbContext.DonorBloodGroupVerifications.AsNoTracking()
-                join p in _dbContext.DonorProfiles.AsNoTracking() on v.UserId equals p.UserId
-                where v.Status == VerificationStatus.Verified
-                      && p.IsAvailableForRequests
-                      && compatibleGroups.Contains(v.VerifiedBloodGroup!.Value)
-                      && p.City.Trim().ToLower() == cityKey
-                select new { V = v, P = p };
+            var candidates = MatchCandidateQuery.Build(_dbContext, compatibleGroups, cityKey);
 
             var totalCount = await candidates.CountAsync();
 
             // Operational ordering only (not medical): exact blood group first,
             // then same area as the hospital, then earliest verification.
             var rows = await candidates
-                .OrderByDescending(x => x.V.VerifiedBloodGroup == patientGroup)
-                .ThenByDescending(x => x.P.Area.Trim().ToLower() == areaKey)
-                .ThenBy(x => x.V.VerifiedAt)
-                .ThenBy(x => x.P.Id)
+                .OrderByDescending(x => x.VerifiedBloodGroup == patientGroup)
+                .ThenByDescending(x => x.Area.Trim().ToLower() == areaKey)
+                .ThenBy(x => x.VerifiedAt)
+                .ThenBy(x => x.ProfileId)
                 .Take(MaxMatches)
-                .Select(x => new
-                {
-                    Reference = x.P.Id,
-                    Group = x.V.VerifiedBloodGroup,
-                    x.P.City,
-                    x.P.Area
-                })
                 .ToListAsync();
 
             var matches = rows
                 .Select(r => new DonorMatchResponse
                 {
-                    DonorReference = r.Reference,
-                    VerifiedBloodGroup = r.Group!.Value,
+                    DonorReference = r.ProfileId,
+                    VerifiedBloodGroup = r.VerifiedBloodGroup!.Value,
                     City = r.City,
                     Area = r.Area,
-                    IsExactBloodGroupMatch = r.Group.Value == patientGroup
+                    IsExactBloodGroupMatch = r.VerifiedBloodGroup.Value == patientGroup
                 })
                 .ToList();
 

@@ -18,7 +18,8 @@ namespace BloodDonor.Infrastructure.Persistence
         public DbSet<Hospital> Hospitals => Set<Hospital>();
         public DbSet<HospitalUser> HospitalUsers => Set<HospitalUser>();
         public DbSet<BloodRequest> BloodRequests => Set<BloodRequest>();
-
+        public DbSet<DonorRequest> DonorRequests => Set<DonorRequest>();
+        public DbSet<DonorContactAccessLog> DonorContactAccessLogs => Set<DonorContactAccessLog>();
         protected override void OnModelCreating(ModelBuilder builder)
         {
             base.OnModelCreating(builder);
@@ -28,6 +29,8 @@ namespace BloodDonor.Infrastructure.Persistence
             builder.ApplyConfiguration(new HospitalConfiguration());
             builder.ApplyConfiguration(new HospitalUserConfiguration());
             builder.ApplyConfiguration(new BloodRequestConfiguration());
+            builder.ApplyConfiguration(new DonorRequestConfiguration());
+            builder.ApplyConfiguration(new DonorContactAccessLogConfiguration());
         }
     }
 }

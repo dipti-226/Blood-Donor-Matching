@@ -8,6 +8,7 @@ using BloodDonor.Application.Compatibility;
 using BloodDonor.Application.BloodRequests;
 using BloodDonor.Application.Matching;
 using BloodDonor.Application.DonorRequests;
+using BloodDonor.Application.Notifications;
 using BloodDonor.Infrastructure.BloodVerification;
 using BloodDonor.Infrastructure.Donors;
 using BloodDonor.Infrastructure.Hospitals;
@@ -16,6 +17,7 @@ using BloodDonor.Infrastructure.BloodRequests;
 using BloodDonor.Infrastructure.Persistence;
 using BloodDonor.Infrastructure.Matching;
 using BloodDonor.Infrastructure.DonorRequests;
+using BloodDonor.Infrastructure.Notifications;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.HttpLogging;
 using Microsoft.AspNetCore.Identity;
@@ -58,6 +60,7 @@ builder.Services.AddScoped<IDonorAvailabilityService, DonorAvailabilityService>(
 builder.Services.AddScoped<IDonorMatchingService, DonorMatchingService>();
 builder.Services.AddScoped<IHospitalDonorRequestService, HospitalDonorRequestService>();
 builder.Services.AddScoped<IDonorOwnRequestService, DonorOwnRequestService>();
+builder.Services.AddScoped<INotificationService, NotificationService>();
 //It’s a singleton because the service is stateless:
 builder.Services.AddSingleton<IBloodCompatibilityService, BloodCompatibilityService>();
 

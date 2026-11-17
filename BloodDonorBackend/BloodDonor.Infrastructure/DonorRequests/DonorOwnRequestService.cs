@@ -1,5 +1,6 @@
 ﻿using BloodDonor.Application.DonorRequests;
 using BloodDonor.Domain.Entities;
+using BloodDonor.Infrastructure.Notifications;
 using BloodDonor.Infrastructure.Persistence;
 using Microsoft.EntityFrameworkCore;
 
@@ -28,7 +29,8 @@ namespace BloodDonor.Infrastructure.DonorRequests
             return DonorRequestResult<IReadOnlyList<DonorOwnRequestResponse>>.Success(items);
         }
 
-        public Task<DonorRequestResult<DonorOwnRequestResponse>> AcceptAsync(string donorUserId, Guid donorRequestId, AcceptDonorRequestRequest request)
+        public Task<DonorRequestResult<DonorOwnRequestResponse>> AcceptAsync(
+            string donorUserId, Guid donorRequestId, AcceptDonorRequestRequest request)
         {
             return RespondAsync(
                 donorUserId,
@@ -48,10 +50,18 @@ namespace BloodDonor.Infrastructure.DonorRequests
                 contactNumber: null);
         }
 
-        private async Task<DonorRequestResult<DonorOwnRequestResponse>> RespondAsync(string donorUserId,Guid donorRequestId,DonorRequestStatus newStatus,bool allowFromAccepted,string? contactNumber)
+        private async Task<DonorRequestResult<DonorOwnRequestResponse>> RespondAsync(
+            string donorUserId,
+            Guid donorRequestId,
+            DonorRequestStatus newStatus,
+            bool allowFromAccepted,
+            string? contactNumber)
         {
             var now = DateTime.UtcNow;
             DateTime? respondedAt = now;
+
+            // The response and the hospital's notifications commit or roll back together.
+            await using var transaction = await _dbContext.Database.BeginTransactionAsync();
 
             // Atomic: the request must belong to this donor, still be in an allowed state,
             // and its blood request must still be Open. Declining erases the shared number.
@@ -89,6 +99,37 @@ namespace BloodDonor.Infrastructure.DonorRequests
                 return DonorRequestResult<DonorOwnRequestResponse>.Failure(
                     DonorRequestErrorType.InvalidTransition, "This donor request can no longer be changed that way.");
             }
+
+            // Notify every member of the requesting hospital (admin and staff), one row each.
+            var context = await (
+                from r in _dbContext.DonorRequests.AsNoTracking()
+                where r.Id == donorRequestId
+                join b in _dbContext.BloodRequests.AsNoTracking() on r.BloodRequestId equals b.Id
+                select new { BloodRequestId = b.Id, b.HospitalId, b.PatientBloodGroup }
+            ).FirstAsync();
+
+            var memberUserIds = await _dbContext.HospitalUsers
+                .AsNoTracking()
+                .Where(hu => hu.HospitalId == context.HospitalId)
+                .Select(hu => hu.UserId)
+                .ToListAsync();
+
+            var type = newStatus == DonorRequestStatus.Accepted
+                ? NotificationType.DonorRequestAccepted
+                : NotificationType.DonorRequestDeclined;
+
+            var message = newStatus == DonorRequestStatus.Accepted
+                ? NotificationBuilder.DonorRequestAccepted(context.PatientBloodGroup)
+                : NotificationBuilder.DonorRequestDeclined(context.PatientBloodGroup);
+
+            foreach (var memberUserId in memberUserIds)
+            {
+                _dbContext.Notifications.Add(NotificationBuilder.Create(
+                    memberUserId, type, message, context.BloodRequestId, donorRequestId));
+            }
+
+            await _dbContext.SaveChangesAsync();
+            await transaction.CommitAsync();
 
             return DonorRequestResult<DonorOwnRequestResponse>.Success(ToResponse(row!));
         }

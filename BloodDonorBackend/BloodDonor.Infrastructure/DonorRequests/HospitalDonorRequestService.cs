@@ -3,6 +3,7 @@ using BloodDonor.Application.DonorRequests;
 using BloodDonor.Domain.Entities;
 using BloodDonor.Infrastructure.BloodRequests;
 using BloodDonor.Infrastructure.Matching;
+using BloodDonor.Infrastructure.Notifications;
 using BloodDonor.Infrastructure.Persistence;
 using Microsoft.EntityFrameworkCore;
 
@@ -21,8 +22,7 @@ namespace BloodDonor.Infrastructure.DonorRequests
             _compatibilityService = compatibilityService;
         }
 
-        public async Task<DonorRequestResult<IReadOnlyList<DonorRequestResponse>>> SendAsync(
-            string userId, Guid bloodRequestId, SendDonorRequestsRequest request)
+        public async Task<DonorRequestResult<IReadOnlyList<DonorRequestResponse>>> SendAsync(string userId, Guid bloodRequestId, SendDonorRequestsRequest request)
         {
             var hospitalId = await ActiveHospitalResolver.GetActiveHospitalIdAsync(_dbContext, userId);
 
@@ -54,13 +54,13 @@ namespace BloodDonor.Infrastructure.DonorRequests
 
             var references = request.DonorReferences.Distinct().ToList();
 
-            var hospitalCity = await _dbContext.Hospitals
+            var hospital = await _dbContext.Hospitals
                 .AsNoTracking()
                 .Where(h => h.Id == ownHospitalId)
-                .Select(h => h.City)
+                .Select(h => new { h.Name, h.City })
                 .FirstAsync();
 
-            var cityKey = hospitalCity.Trim().ToLowerInvariant();
+            var cityKey = hospital.City.Trim().ToLowerInvariant();
 
             var compatibleGroups = _compatibilityService
                 .GetCompatibleDonorBloodGroups(bloodRequest.PatientBloodGroup, bloodRequest.Component)
@@ -100,6 +100,12 @@ namespace BloodDonor.Infrastructure.DonorRequests
                     $"A blood request can have at most {MaxDonorRequestsPerBloodRequest} donor requests.");
             }
 
+            var donorUserIds = await _dbContext.DonorProfiles
+                .AsNoTracking()
+                .Where(p => references.Contains(p.Id))
+                .Select(p => new { p.Id, p.UserId })
+                .ToDictionaryAsync(p => p.Id, p => p.UserId);
+
             var now = DateTime.UtcNow;
 
             var newRequests = references
@@ -115,9 +121,23 @@ namespace BloodDonor.Infrastructure.DonorRequests
                 })
                 .ToList();
 
+            var message = NotificationBuilder.DonorRequestReceived(
+                hospital.Name, bloodRequest.Component, bloodRequest.PatientBloodGroup);
+
+            var notifications = newRequests
+                .Select(r => NotificationBuilder.Create(
+                    donorUserIds[r.DonorProfileId],
+                    NotificationType.DonorRequestReceived,
+                    message,
+                    bloodRequestId,
+                    r.Id))
+                .ToList();
+
             try
             {
+                // One SaveChanges: the donor requests and their notifications commit or fail together.
                 _dbContext.DonorRequests.AddRange(newRequests);
+                _dbContext.Notifications.AddRange(notifications);
                 await _dbContext.SaveChangesAsync();
             }
             catch (DbUpdateException)
@@ -138,8 +158,7 @@ namespace BloodDonor.Infrastructure.DonorRequests
             return DonorRequestResult<IReadOnlyList<DonorRequestResponse>>.Success(created);
         }
 
-        public async Task<DonorRequestResult<IReadOnlyList<DonorRequestResponse>>> ListAsync(
-            string userId, Guid bloodRequestId, DonorRequestStatus? status)
+        public async Task<DonorRequestResult<IReadOnlyList<DonorRequestResponse>>> ListAsync(string userId, Guid bloodRequestId, DonorRequestStatus? status)
         {
             var hospitalId = await ActiveHospitalResolver.GetActiveHospitalIdAsync(_dbContext, userId);
 
@@ -172,8 +191,7 @@ namespace BloodDonor.Infrastructure.DonorRequests
             return DonorRequestResult<IReadOnlyList<DonorRequestResponse>>.Success(items);
         }
 
-        public async Task<DonorRequestResult<DonorRequestResponse>> CancelAsync(
-            string userId, Guid bloodRequestId, Guid donorRequestId)
+        public async Task<DonorRequestResult<DonorRequestResponse>> CancelAsync(string userId, Guid bloodRequestId, Guid donorRequestId)
         {
             var hospitalId = await ActiveHospitalResolver.GetActiveHospitalIdAsync(_dbContext, userId);
 
@@ -183,7 +201,9 @@ namespace BloodDonor.Infrastructure.DonorRequests
                     DonorRequestErrorType.NotAuthorized, "You are not authorized to manage donor requests.");
             }
 
-            var bloodRequestStatus = await GetOwnBloodRequestStatusAsync(hospitalId.Value, bloodRequestId);
+            var ownHospitalId = hospitalId.Value;
+
+            var bloodRequestStatus = await GetOwnBloodRequestStatusAsync(ownHospitalId, bloodRequestId);
 
             if (bloodRequestStatus == null)
             {
@@ -193,6 +213,9 @@ namespace BloodDonor.Infrastructure.DonorRequests
 
             var now = DateTime.UtcNow;
             string? clearedContact = null;
+
+            // The status change and the donor's notification commit or roll back together.
+            await using var transaction = await _dbContext.Database.BeginTransactionAsync();
 
             // Atomic: only a Pending or Accepted request can be cancelled. The shared contact number is erased.
             var affectedRows = await _dbContext.DonorRequests
@@ -219,6 +242,29 @@ namespace BloodDonor.Infrastructure.DonorRequests
                     DonorRequestErrorType.InvalidTransition, "This donor request can no longer be cancelled.");
             }
 
+            var donorUserId = await (
+                from r in _dbContext.DonorRequests.AsNoTracking()
+                where r.Id == donorRequestId
+                join p in _dbContext.DonorProfiles.AsNoTracking() on r.DonorProfileId equals p.Id
+                select p.UserId
+            ).FirstAsync();
+
+            var hospitalName = await _dbContext.Hospitals
+                .AsNoTracking()
+                .Where(h => h.Id == ownHospitalId)
+                .Select(h => h.Name)
+                .FirstAsync();
+
+            _dbContext.Notifications.Add(NotificationBuilder.Create(
+                donorUserId,
+                NotificationType.DonorRequestCancelled,
+                NotificationBuilder.DonorRequestCancelled(hospitalName),
+                bloodRequestId,
+                donorRequestId));
+
+            await _dbContext.SaveChangesAsync();
+            await transaction.CommitAsync();
+
             var response = await BuildHospitalView(bloodRequestId)
                 .Where(x => x.Id == donorRequestId)
                 .FirstAsync();
@@ -226,8 +272,7 @@ namespace BloodDonor.Infrastructure.DonorRequests
             return DonorRequestResult<DonorRequestResponse>.Success(response);
         }
 
-        public async Task<DonorRequestResult<DonorRequestContactResponse>> GetContactAsync(
-            string userId, Guid bloodRequestId, Guid donorRequestId)
+        public async Task<DonorRequestResult<DonorRequestContactResponse>> GetContactAsync(string userId, Guid bloodRequestId, Guid donorRequestId)
         {
             var hospitalId = await ActiveHospitalResolver.GetActiveHospitalIdAsync(_dbContext, userId);
 

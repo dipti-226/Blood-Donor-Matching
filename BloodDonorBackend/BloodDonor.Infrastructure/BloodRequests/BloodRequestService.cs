@@ -1,5 +1,6 @@
 ﻿using BloodDonor.Application.BloodRequests;
 using BloodDonor.Domain.Entities;
+using BloodDonor.Infrastructure.Notifications;
 using BloodDonor.Infrastructure.Persistence;
 using Microsoft.EntityFrameworkCore;
 
@@ -55,11 +56,7 @@ namespace BloodDonor.Infrastructure.BloodRequests
             return CloseAsync(userId, bloodRequestId, BloodRequestStatus.Cancelled, request.Reason.Trim());
         }
 
-        private async Task<BloodRequestResult> CloseAsync(
-            string userId,
-            Guid bloodRequestId,
-            BloodRequestStatus newStatus,
-            string? cancellationReason)
+        private async Task<BloodRequestResult> CloseAsync(string userId,Guid bloodRequestId,BloodRequestStatus newStatus,string? cancellationReason)
         {
             var hospitalId = await ActiveHospitalResolver.GetActiveHospitalIdAsync(_dbContext, userId);
 
@@ -72,6 +69,9 @@ namespace BloodDonor.Infrastructure.BloodRequests
             DateTime? closedAt = now;
             string? closedBy = userId;
             var ownHospitalId = hospitalId.Value;
+
+            // The close and the donors' notifications commit or roll back together.
+            await using var transaction = await _dbContext.Database.BeginTransactionAsync();
 
             // Atomic conditional update: only an Open request of the caller's own hospital can be closed,
             // so two staff acting at the same time cannot both succeed.
@@ -104,6 +104,40 @@ namespace BloodDonor.Infrastructure.BloodRequests
                     BloodRequestErrorType.RequestNotOpen,
                     "This blood request is no longer open.");
             }
+
+            // Tell donors who still have a Pending or Accepted request that the hospital no longer needs them.
+            var donorTargets = await (
+                from r in _dbContext.DonorRequests.AsNoTracking()
+                where r.BloodRequestId == bloodRequestId
+                      && (r.Status == DonorRequestStatus.Pending || r.Status == DonorRequestStatus.Accepted)
+                join p in _dbContext.DonorProfiles.AsNoTracking() on r.DonorProfileId equals p.Id
+                select new { DonorRequestId = r.Id, p.UserId }
+            ).ToListAsync();
+
+            if (donorTargets.Count > 0)
+            {
+                var hospitalName = await _dbContext.Hospitals
+                    .AsNoTracking()
+                    .Where(h => h.Id == ownHospitalId)
+                    .Select(h => h.Name)
+                    .FirstAsync();
+
+                var message = NotificationBuilder.BloodRequestClosed(hospitalName);
+
+                foreach (var target in donorTargets)
+                {
+                    _dbContext.Notifications.Add(NotificationBuilder.Create(
+                        target.UserId,
+                        NotificationType.BloodRequestClosed,
+                        message,
+                        bloodRequestId,
+                        target.DonorRequestId));
+                }
+
+                await _dbContext.SaveChangesAsync();
+            }
+
+            await transaction.CommitAsync();
 
             var response = await _dbContext.BloodRequests
                 .AsNoTracking()

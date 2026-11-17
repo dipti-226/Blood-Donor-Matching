@@ -20,6 +20,7 @@ namespace BloodDonor.Infrastructure.Persistence
         public DbSet<BloodRequest> BloodRequests => Set<BloodRequest>();
         public DbSet<DonorRequest> DonorRequests => Set<DonorRequest>();
         public DbSet<DonorContactAccessLog> DonorContactAccessLogs => Set<DonorContactAccessLog>();
+        public DbSet<Notification> Notifications => Set<Notification>();
         protected override void OnModelCreating(ModelBuilder builder)
         {
             base.OnModelCreating(builder);
@@ -31,6 +32,7 @@ namespace BloodDonor.Infrastructure.Persistence
             builder.ApplyConfiguration(new BloodRequestConfiguration());
             builder.ApplyConfiguration(new DonorRequestConfiguration());
             builder.ApplyConfiguration(new DonorContactAccessLogConfiguration());
+            builder.ApplyConfiguration(new NotificationConfiguration());
         }
     }
 }

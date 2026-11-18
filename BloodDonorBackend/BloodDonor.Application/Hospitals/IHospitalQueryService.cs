@@ -4,5 +4,6 @@
     {
         Task<HospitalResult> GetByIdAsync(Guid id, string callerUserId, bool isSuperAdmin);
         Task<IReadOnlyList<HospitalResponse>> GetAllAsync();
+        Task<HospitalResult> GetMineAsync(string callerUserId);
     }
 }

@@ -2,6 +2,7 @@ using System.Globalization;
 using System.Security.Claims;
 using System.Text;
 using System.Threading.RateLimiting;
+using System.Text.Json.Serialization;
 using BloodDonor.API.Middleware;
 using BloodDonor.API.RateLimiting;
 using BloodDonor.Application.Auth;
@@ -41,7 +42,13 @@ builder.WebHost.ConfigureKestrel(options =>
 
 // Add services to the container.
 
-builder.Services.AddControllers();
+builder.Services.AddControllers()
+    .AddJsonOptions(options =>
+    {
+        // Enums travel as names ("APlus", "Critical"), so reordering an enum can never silently break clients.
+        // Numbers are still accepted in requests, so earlier test bodies keep working.
+        options.JsonSerializerOptions.Converters.Add(new JsonStringEnumConverter());
+    });
 // Learn more about configuring OpenAPI at https://aka.ms/aspnet/openapi
 builder.Services.AddOpenApi();
 

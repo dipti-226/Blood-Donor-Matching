@@ -14,5 +14,11 @@ namespace BloodDonor.Application.BloodRequests
         public DateTime CreatedAt { get; set; }
         public DateTime? ClosedAt { get; set; }
         public string? CancellationReason { get; set; }
+
+        // Donor requests sent and not cancelled (Pending, Accepted, Declined).
+        public int AskedCount { get; set; }
+
+        // Donor requests currently Accepted.
+        public int AcceptedCount { get; set; }
     }
 }

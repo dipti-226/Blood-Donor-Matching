@@ -1,13 +1,15 @@
 ﻿using System.Linq.Expressions;
 using BloodDonor.Application.BloodRequests;
 using BloodDonor.Domain.Entities;
+using BloodDonor.Infrastructure.Persistence;
 
 namespace BloodDonor.Infrastructure.BloodRequests
 {
     internal static class BloodRequestMapping
     {
-        public static readonly Expression<Func<BloodRequest, BloodRequestResponse>> ToResponse =
-            r => new BloodRequestResponse
+        public static Expression<Func<BloodRequest, BloodRequestResponse>> ToResponse(ApplicationDbContext dbContext)
+        {
+            return r => new BloodRequestResponse
             {
                 Id = r.Id,
                 HospitalId = r.HospitalId,
@@ -18,14 +20,32 @@ namespace BloodDonor.Infrastructure.BloodRequests
                 Status = r.Status,
                 CreatedAt = r.CreatedAt,
                 ClosedAt = r.ClosedAt,
-                CancellationReason = r.CancellationReason
+                CancellationReason = r.CancellationReason,
+                AskedCount = dbContext.DonorRequests.Count(d =>
+                    d.BloodRequestId == r.Id && d.Status != DonorRequestStatus.Cancelled),
+                AcceptedCount = dbContext.DonorRequests.Count(d =>
+                    d.BloodRequestId == r.Id && d.Status == DonorRequestStatus.Accepted)
             };
+        }
 
-        private static readonly Func<BloodRequest, BloodRequestResponse> ToResponseCompiled = ToResponse.Compile();
-
+        // Used right after creation, when no donor request can exist yet.
         public static BloodRequestResponse Map(BloodRequest request)
         {
-            return ToResponseCompiled(request);
+            return new BloodRequestResponse
+            {
+                Id = request.Id,
+                HospitalId = request.HospitalId,
+                PatientBloodGroup = request.PatientBloodGroup,
+                Component = request.Component,
+                UnitsRequired = request.UnitsRequired,
+                Urgency = request.Urgency,
+                Status = request.Status,
+                CreatedAt = request.CreatedAt,
+                ClosedAt = request.ClosedAt,
+                CancellationReason = request.CancellationReason,
+                AskedCount = 0,
+                AcceptedCount = 0
+            };
         }
     }
 }

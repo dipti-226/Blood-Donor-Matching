@@ -57,5 +57,25 @@ namespace BloodDonor.API.Controllers
                 Detail = result.ErrorMessage
             });
         }
+
+        [HttpPut("profile")]
+        public async Task<IActionResult> UpdateProfile([FromBody] UpdateDonorProfileRequest request)
+        {
+            var userId = User.FindFirstValue(ClaimTypes.NameIdentifier)!;
+
+            var result = await _donorProfileService.UpdateProfileAsync(userId, request);
+
+            if (result.Succeeded)
+            {
+                return Ok(result.Response);
+            }
+
+            return NotFound(new ProblemDetails
+            {
+                Status = StatusCodes.Status404NotFound,
+                Title = "Donor profile not found.",
+                Detail = result.ErrorMessage
+            });
+        }
     }
 }

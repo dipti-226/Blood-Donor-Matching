@@ -46,6 +46,27 @@ namespace BloodDonor.API.Controllers
             });
         }
 
+        [Authorize(Roles = Roles.HospitalAdmin + "," + Roles.HospitalStaff)]
+        [HttpGet("mine")]
+        public async Task<IActionResult> GetMine()
+        {
+            var callerUserId = User.FindFirstValue(ClaimTypes.NameIdentifier)!;
+
+            var result = await _hospitalQueryService.GetMineAsync(callerUserId);
+
+            if (result.Succeeded)
+            {
+                return Ok(result.Response);
+            }
+
+            return NotFound(new ProblemDetails
+            {
+                Status = StatusCodes.Status404NotFound,
+                Title = "Hospital not found.",
+                Detail = result.ErrorMessage
+            });
+        }
+
         [Authorize(Roles = Roles.SuperAdmin + "," + Roles.HospitalAdmin)]
         [HttpGet("{id:guid}")]
         public async Task<IActionResult> GetById(Guid id)

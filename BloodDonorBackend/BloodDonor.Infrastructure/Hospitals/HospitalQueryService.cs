@@ -53,7 +53,26 @@ namespace BloodDonor.Infrastructure.Hospitals
 
             return hospitals.Select(MapToResponse).ToList();
         }
+        public async Task<HospitalResult> GetMineAsync(string callerUserId)
+        {
+            // The hospital comes from the caller's membership. A Pending or Suspended hospital is still
+            // returned, so the app can tell the user what state their hospital is in.
+            var hospital = await (
+                from hu in _dbContext.HospitalUsers.AsNoTracking()
+                where hu.UserId == callerUserId
+                join h in _dbContext.Hospitals.AsNoTracking() on hu.HospitalId equals h.Id
+                select h
+            ).FirstOrDefaultAsync();
 
+            if (hospital == null)
+            {
+                return HospitalResult.Failure(
+                    HospitalErrorType.HospitalNotFound,
+                    "Your account is not linked to a hospital.");
+            }
+
+            return HospitalResult.Success(MapToResponse(hospital));
+        }
         private static HospitalResponse MapToResponse(Hospital hospital)
         {
             return new HospitalResponse

@@ -73,6 +73,32 @@ namespace BloodDonor.Infrastructure.Donors
             return DonorProfileResult.Success(MapToResponse(profile));
         }
 
+        public async Task<DonorProfileResult> UpdateProfileAsync(string userId, UpdateDonorProfileRequest request)
+        {
+            var profile = await _dbContext.DonorProfiles
+                .FirstOrDefaultAsync(d => d.UserId == userId);
+
+            if (profile == null)
+            {
+                return DonorProfileResult.Failure(
+                    DonorProfileErrorType.ProfileNotFound,
+                    "No donor profile exists for this account.");
+            }
+
+            // The availability flag is changed only through its own endpoint, never here.
+            profile.FullName = request.FullName;
+            profile.DateOfBirth = request.DateOfBirth;
+            profile.Gender = request.Gender;
+            profile.Address = request.Address;
+            profile.City = request.City;
+            profile.Area = request.Area;
+            profile.Pincode = request.Pincode;
+            profile.UpdatedAt = DateTime.UtcNow;
+
+            await _dbContext.SaveChangesAsync();
+
+            return DonorProfileResult.Success(MapToResponse(profile));
+        }
         private static DonorProfileResponse MapToResponse(DonorProfile profile)
         {
             return new DonorProfileResponse

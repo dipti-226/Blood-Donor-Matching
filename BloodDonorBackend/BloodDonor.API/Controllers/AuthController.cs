@@ -2,6 +2,8 @@
 using BloodDonor.Application.Auth;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
+using BloodDonor.API.RateLimiting;
+using Microsoft.AspNetCore.RateLimiting;
 
 namespace BloodDonor.API.Controllers
 {
@@ -18,6 +20,7 @@ namespace BloodDonor.API.Controllers
             _loginService = loginService;
         }
 
+        [EnableRateLimiting(RateLimitPolicies.Auth)]
         [HttpPost("register")]
         public async Task<IActionResult> Register([FromBody] RegisterUserRequest request)
         {
@@ -56,6 +59,7 @@ namespace BloodDonor.API.Controllers
             };
         }
 
+        [EnableRateLimiting(RateLimitPolicies.Auth)]
         [HttpPost("login")]
         public async Task<IActionResult> Login([FromBody] LoginUserRequest request)
         {

@@ -4,6 +4,8 @@ using BloodDonor.Domain.Constants;
 using BloodDonor.Domain.Entities;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
+using BloodDonor.API.RateLimiting;
+using Microsoft.AspNetCore.RateLimiting;
 
 namespace BloodDonor.API.Controllers
 {
@@ -64,6 +66,7 @@ namespace BloodDonor.API.Controllers
             return ToProblem(result, "Cancelling the donor request failed.");
         }
 
+        [EnableRateLimiting(RateLimitPolicies.Contact)]
         [HttpGet("{donorRequestId:guid}/contact")]
         public async Task<IActionResult> GetContact(Guid bloodRequestId, Guid donorRequestId)
         {

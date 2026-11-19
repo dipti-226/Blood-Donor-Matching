@@ -1,0 +1,64 @@
+<div class="auth-wrap">
+  <div class="card auth-card">
+    <div class="card-body p-4">
+      <h1 class="h4 mb-1">Create a donor account</h1>
+      <p class="text-secondary mb-3">You can add your profile and blood group after signing in.</p>
+
+      @if (error()) {
+        <div class="alert alert-danger" role="alert">{{ error() }}</div>
+      }
+
+      <form [formGroup]="form" (ngSubmit)="submit()" novalidate>
+        <app-form-field label="Email" controlId="register-email" [error]="fieldError('email')">
+          <input
+            id="register-email"
+            type="email"
+            class="form-control"
+            formControlName="email"
+            autocomplete="email"
+            [class.is-invalid]="!!fieldError('email')"
+          />
+        </app-form-field>
+
+        <app-form-field
+          label="Password"
+          controlId="register-password"
+          hint="At least 6 characters with an upper case letter, a lower case letter, a digit and a symbol."
+          [error]="fieldError('password')"
+        >
+          <input
+            id="register-password"
+            type="password"
+            class="form-control"
+            formControlName="password"
+            autocomplete="new-password"
+            [class.is-invalid]="!!fieldError('password')"
+          />
+        </app-form-field>
+
+        <app-form-field label="Confirm password" controlId="register-confirm" [error]="fieldError('confirmPassword')">
+          <input
+            id="register-confirm"
+            type="password"
+            class="form-control"
+            formControlName="confirmPassword"
+            autocomplete="new-password"
+            [class.is-invalid]="!!fieldError('confirmPassword')"
+          />
+        </app-form-field>
+
+        <button type="submit" class="btn btn-primary w-100" [disabled]="busy()">
+          @if (busy()) {
+            <span class="spinner-border spinner-border-sm me-2" aria-hidden="true"></span>Creating account...
+          } @else {
+            Create account
+          }
+        </button>
+      </form>
+
+      <p class="text-center text-secondary mt-3 mb-0">
+        Already registered? <a routerLink="/login">Sign in</a>
+      </p>
+    </div>
+  </div>
+</div>

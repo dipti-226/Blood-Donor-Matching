@@ -1,4 +1,11 @@
-import {BloodComponent,BloodGroup,DonorRequestStatus,Gender,UrgencyLevel,VerificationStatus,} from './enums';
+import {
+  BloodComponent,
+  BloodGroup,
+  DonorRequestStatus,
+  Gender,
+  UrgencyLevel,
+  VerificationStatus,
+} from './enums';
 
 export interface DonorProfile {
   id: string;

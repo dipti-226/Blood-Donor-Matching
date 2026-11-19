@@ -142,8 +142,7 @@ namespace BloodDonor.Infrastructure.BloodRequests
             var response = await _dbContext.BloodRequests
                 .AsNoTracking()
                 .Where(r => r.Id == bloodRequestId)
-                .Select(BloodRequestMapping.ToResponse)
-                .FirstAsync();
+                .Select(BloodRequestMapping.ToResponse(_dbContext)).FirstAsync();
 
             return BloodRequestResult.Success(response);
         }

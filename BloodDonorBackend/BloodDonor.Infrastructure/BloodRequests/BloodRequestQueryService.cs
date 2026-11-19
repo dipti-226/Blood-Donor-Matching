@@ -31,8 +31,7 @@ namespace BloodDonor.Infrastructure.BloodRequests
                 .AsNoTracking()
                 .Where(r => r.HospitalId == ownHospitalId && r.Status == status)
                 .OrderByDescending(r => r.CreatedAt)
-                .Select(BloodRequestMapping.ToResponse)
-                .ToListAsync();
+                .Select(BloodRequestMapping.ToResponse(_dbContext)).ToListAsync();
 
             return BloodRequestListResult.Success(items);
         }
@@ -53,8 +52,7 @@ namespace BloodDonor.Infrastructure.BloodRequests
             var response = await _dbContext.BloodRequests
                 .AsNoTracking()
                 .Where(r => r.Id == bloodRequestId && r.HospitalId == ownHospitalId)
-                .Select(BloodRequestMapping.ToResponse)
-                .FirstOrDefaultAsync();
+                .Select(BloodRequestMapping.ToResponse(_dbContext)).FirstOrDefaultAsync();
 
             if (response == null)
             {

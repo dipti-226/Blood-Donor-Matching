@@ -1,0 +1,37 @@
+:host {
+  display: flex;
+  flex-direction: column;
+  min-height: 100vh;
+}
+
+.site-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 1rem;
+  padding: 0.75rem 1.25rem;
+  background: var(--bd-surface);
+  border-bottom: 1px solid var(--bd-border);
+}
+
+.brand {
+  color: var(--bd-primary);
+  font-weight: 700;
+  font-size: 1.15rem;
+  text-decoration: none;
+}
+
+.actions {
+  display: flex;
+  gap: 0.5rem;
+}
+
+.site-main {
+  flex: 1;
+}
+
+.site-footer {
+  padding: 1rem 1.25rem;
+  text-align: center;
+  color: var(--bd-text-muted);
+}

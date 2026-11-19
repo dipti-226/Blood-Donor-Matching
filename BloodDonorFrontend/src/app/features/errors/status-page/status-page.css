@@ -1,0 +1,18 @@
+.status-wrap {
+  min-height: 60vh;
+  display: grid;
+  place-items: center;
+  padding: 1.5rem;
+}
+
+.status-card {
+  width: 100%;
+  max-width: 28rem;
+}
+
+.status-code {
+  font-size: 3rem;
+  font-weight: 700;
+  line-height: 1.1;
+  color: var(--bd-primary);
+}

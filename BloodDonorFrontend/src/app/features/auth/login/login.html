@@ -1,0 +1,53 @@
+<div class="auth-wrap">
+  <div class="card auth-card">
+    <div class="card-body p-4">
+      <h1 class="h4 mb-1">Sign in</h1>
+      <p class="text-secondary mb-3">Emergency blood and plasma donor matching.</p>
+
+      @if (notice) {
+        <div class="alert alert-info" role="status">{{ notice }}</div>
+      }
+      @if (error()) {
+        <div class="alert alert-danger" role="alert">{{ error() }}</div>
+      }
+
+      <form [formGroup]="form" (ngSubmit)="submit()" novalidate>
+        <app-form-field label="Email" controlId="login-email" [error]="fieldError('email')">
+          <input
+            id="login-email"
+            type="email"
+            class="form-control"
+            formControlName="email"
+            autocomplete="username"
+            [class.is-invalid]="!!fieldError('email')"
+          />
+        </app-form-field>
+
+        <app-form-field label="Password" controlId="login-password" [error]="fieldError('password')">
+          <input
+            id="login-password"
+            type="password"
+            class="form-control"
+            formControlName="password"
+            autocomplete="current-password"
+            [class.is-invalid]="!!fieldError('password')"
+          />
+        </app-form-field>
+
+        <button type="submit" class="btn btn-primary w-100" [disabled]="busy() || retrySeconds() > 0">
+          @if (busy()) {
+            <span class="spinner-border spinner-border-sm me-2" aria-hidden="true"></span>Signing in...
+          } @else if (retrySeconds() > 0) {
+            Try again in {{ retrySeconds() }}s
+          } @else {
+            Sign in
+          }
+        </button>
+      </form>
+
+      <p class="text-center text-secondary mt-3 mb-0">
+        New donor? <a routerLink="/register">Create an account</a>
+      </p>
+    </div>
+  </div>
+</div>

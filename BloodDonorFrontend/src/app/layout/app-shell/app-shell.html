@@ -1,0 +1,65 @@
+<div class="shell">
+  <header class="topbar">
+    <a class="brand" routerLink="/"><i class="bi bi-droplet-fill"></i> BloodDonor</a>
+
+    @if (hospital(); as h) {
+      <span class="context d-none d-md-inline">{{ h.name }}</span>
+    }
+
+    <div class="topbar-actions">
+      @if (showBell()) {
+        <a class="icon-link" routerLink="/notifications" aria-label="Notifications">
+          <i class="bi bi-bell"></i>
+        </a>
+      }
+      <span class="user d-none d-md-inline">{{ session.user()?.email }}</span>
+      <button type="button" class="btn btn-sm btn-outline-light" (click)="signOut()">Sign out</button>
+    </div>
+  </header>
+
+  @if (!isDonor()) {
+    <nav class="pills d-md-none" aria-label="Main">
+      @for (item of navItems(); track item.route) {
+        <a
+          class="pill"
+          [routerLink]="item.route"
+          routerLinkActive="active"
+          [routerLinkActiveOptions]="{ exact: !!item.exact }"
+        >
+          {{ item.label }}
+        </a>
+      }
+    </nav>
+  }
+
+  <div class="body">
+    <nav class="sidebar d-none d-md-flex" aria-label="Main">
+      @for (item of navItems(); track item.route) {
+        <a
+          class="nav-link-item"
+          [routerLink]="item.route"
+          routerLinkActive="active"
+          [routerLinkActiveOptions]="{ exact: !!item.exact }"
+        >
+          <i class="bi" [class]="item.icon"></i>
+          {{ item.label }}
+        </a>
+      }
+    </nav>
+
+    <main class="content" [class.with-bottom-nav]="isDonor()">
+      <router-outlet />
+    </main>
+  </div>
+
+  @if (isDonor()) {
+    <nav class="bottom-nav d-md-none" aria-label="Main">
+      @for (item of bottomItems(); track item.route) {
+        <a [routerLink]="item.route" routerLinkActive="active">
+          <i class="bi" [class]="item.icon"></i>
+          <span>{{ item.label }}</span>
+        </a>
+      }
+    </nav>
+  }
+</div>

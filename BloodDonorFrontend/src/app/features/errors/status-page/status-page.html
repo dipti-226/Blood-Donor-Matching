@@ -1,0 +1,12 @@
+<div class="status-wrap">
+  <div class="card status-card">
+    <div class="card-body text-center p-4">
+      @if (code) {
+        <div class="status-code">{{ code }}</div>
+      }
+      <h1 class="h4">{{ title }}</h1>
+      <p class="text-secondary">{{ message }}</p>
+      <a class="btn btn-primary" routerLink="/">Go to my home</a>
+    </div>
+  </div>
+</div>

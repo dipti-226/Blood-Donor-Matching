@@ -1,0 +1,39 @@
+<header class="py-3 px-4 text-white" style="background: var(--bd-secondary)">
+  <i class="bi bi-droplet-fill"></i> BloodDonor
+</header>
+
+<main class="container py-4">
+  <div class="card">
+    <div class="card-body">
+      <h1 class="h4">Theme check</h1>
+      <p class="text-secondary">
+        Temporary page. The top bar should be dark navy, the primary button blue, and the text dark.
+      </p>
+
+      <div class="d-flex flex-wrap gap-2 mb-3">
+        <button type="button" class="btn btn-primary">Primary</button>
+        <button type="button" class="btn btn-outline-primary">Outline</button>
+        <button type="button" class="btn btn-secondary">Secondary</button>
+        <button type="button" class="btn btn-success">Success</button>
+        <button type="button" class="btn btn-danger">Danger</button>
+      </div>
+
+      <div class="d-flex flex-wrap gap-2 mb-3">
+        <span class="bd-badge bd-badge--primary">Open</span>
+        <span class="bd-badge bd-badge--success">Verified</span>
+        <span class="bd-badge bd-badge--warning">Pending</span>
+        <span class="bd-badge bd-badge--error">Rejected</span>
+        <span class="bd-badge bd-badge--accent">Critical</span>
+        <span class="bd-badge bd-badge--neutral">Cancelled</span>
+      </div>
+
+      <div class="alert alert-danger" role="alert">Error alert: something went wrong.</div>
+      <div class="alert alert-success" role="alert">Success alert: saved.</div>
+
+      <label class="form-label" for="demo-email">Email</label>
+      <input id="demo-email" type="email" class="form-control" placeholder="name@example.com" />
+    </div>
+  </div>
+</main>
+
+<router-outlet />

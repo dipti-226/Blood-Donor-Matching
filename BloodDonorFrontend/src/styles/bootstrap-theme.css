@@ -1,0 +1,190 @@
+/* Maps the BloodDonor tokens onto Bootstrap's variables and the components we use. */
+
+:root {
+  --bs-body-font-family: var(--bd-font);
+  --bs-body-color: var(--bd-text);
+  --bs-body-color-rgb: 15, 28, 46;
+  --bs-body-bg: var(--bd-bg);
+  --bs-body-bg-rgb: 243, 247, 251;
+  --bs-secondary-color: var(--bd-text-muted);
+  --bs-secondary: var(--bd-text-muted);
+  --bs-secondary-rgb: 85, 101, 122;
+  --bs-border-color: var(--bd-border);
+  --bs-border-radius: var(--bd-radius);
+  --bs-border-radius-lg: var(--bd-radius-lg);
+
+  --bs-primary: var(--bd-primary);
+  --bs-primary-rgb: 11, 95, 165;
+  --bs-success: var(--bd-success);
+  --bs-success-rgb: 20, 128, 74;
+  --bs-warning: var(--bd-warning);
+  --bs-warning-rgb: 154, 91, 0;
+  --bs-danger: var(--bd-error);
+  --bs-danger-rgb: 201, 37, 45;
+  --bs-info: var(--bd-primary);
+  --bs-info-rgb: 11, 95, 165;
+
+  --bs-link-color: var(--bd-primary);
+  --bs-link-color-rgb: 11, 95, 165;
+  --bs-link-hover-color: var(--bd-primary-active);
+  --bs-link-hover-color-rgb: 9, 74, 129;
+  --bs-focus-ring-color: var(--bd-focus-ring);
+
+  --bs-form-invalid-color: var(--bd-error);
+  --bs-form-invalid-border-color: var(--bd-error);
+  --bs-form-valid-color: var(--bd-success);
+  --bs-form-valid-border-color: var(--bd-success);
+
+  /* Alerts and subtle backgrounds. Contrast of each text and tint pair is above 7:1. */
+  --bs-primary-text-emphasis: color-mix(in srgb, var(--bd-primary) 70%, black);
+  --bs-primary-bg-subtle: color-mix(in srgb, var(--bd-primary) 10%, white);
+  --bs-primary-border-subtle: color-mix(in srgb, var(--bd-primary) 30%, white);
+  --bs-info-text-emphasis: color-mix(in srgb, var(--bd-primary) 70%, black);
+  --bs-info-bg-subtle: color-mix(in srgb, var(--bd-primary) 10%, white);
+  --bs-info-border-subtle: color-mix(in srgb, var(--bd-primary) 30%, white);
+  --bs-success-text-emphasis: color-mix(in srgb, var(--bd-success) 70%, black);
+  --bs-success-bg-subtle: color-mix(in srgb, var(--bd-success) 10%, white);
+  --bs-success-border-subtle: color-mix(in srgb, var(--bd-success) 30%, white);
+  --bs-warning-text-emphasis: color-mix(in srgb, var(--bd-warning) 70%, black);
+  --bs-warning-bg-subtle: color-mix(in srgb, var(--bd-warning) 10%, white);
+  --bs-warning-border-subtle: color-mix(in srgb, var(--bd-warning) 30%, white);
+  --bs-danger-text-emphasis: color-mix(in srgb, var(--bd-error) 70%, black);
+  --bs-danger-bg-subtle: color-mix(in srgb, var(--bd-error) 10%, white);
+  --bs-danger-border-subtle: color-mix(in srgb, var(--bd-error) 30%, white);
+}
+
+:focus-visible {
+  outline: 2px solid var(--bd-primary);
+  outline-offset: 2px;
+}
+
+/* Buttons: 44px minimum touch target, small buttons 36px. */
+.btn {
+  --bs-btn-border-radius: var(--bd-radius);
+  --bs-btn-font-weight: 600;
+  min-height: 2.75rem;
+}
+
+.btn-sm {
+  min-height: 2.25rem;
+}
+
+.btn-primary {
+  --bs-btn-bg: var(--bd-primary);
+  --bs-btn-border-color: var(--bd-primary);
+  --bs-btn-hover-bg: var(--bd-primary-hover);
+  --bs-btn-hover-border-color: var(--bd-primary-hover);
+  --bs-btn-active-bg: var(--bd-primary-active);
+  --bs-btn-active-border-color: var(--bd-primary-active);
+  --bs-btn-disabled-bg: var(--bd-primary);
+  --bs-btn-disabled-border-color: var(--bd-primary);
+  --bs-btn-focus-shadow-rgb: 11, 95, 165;
+}
+
+.btn-outline-primary {
+  --bs-btn-color: var(--bd-primary);
+  --bs-btn-border-color: var(--bd-primary);
+  --bs-btn-hover-bg: var(--bd-primary);
+  --bs-btn-hover-border-color: var(--bd-primary);
+  --bs-btn-active-bg: var(--bd-primary-active);
+  --bs-btn-active-border-color: var(--bd-primary-active);
+  --bs-btn-disabled-color: var(--bd-primary);
+  --bs-btn-disabled-border-color: var(--bd-primary);
+  --bs-btn-focus-shadow-rgb: 11, 95, 165;
+}
+
+.btn-secondary {
+  --bs-btn-bg: var(--bd-secondary);
+  --bs-btn-border-color: var(--bd-secondary);
+  --bs-btn-hover-bg: var(--bd-secondary-hover);
+  --bs-btn-hover-border-color: var(--bd-secondary-hover);
+  --bs-btn-active-bg: var(--bd-secondary-hover);
+  --bs-btn-active-border-color: var(--bd-secondary-hover);
+  --bs-btn-disabled-bg: var(--bd-secondary);
+  --bs-btn-disabled-border-color: var(--bd-secondary);
+  --bs-btn-focus-shadow-rgb: 10, 37, 64;
+}
+
+.btn-outline-secondary {
+  --bs-btn-color: var(--bd-text-muted);
+  --bs-btn-border-color: var(--bd-text-muted);
+  --bs-btn-hover-bg: var(--bd-text-muted);
+  --bs-btn-hover-border-color: var(--bd-text-muted);
+  --bs-btn-active-bg: var(--bd-text);
+  --bs-btn-active-border-color: var(--bd-text);
+  --bs-btn-disabled-color: var(--bd-text-muted);
+  --bs-btn-disabled-border-color: var(--bd-text-muted);
+  --bs-btn-focus-shadow-rgb: 85, 101, 122;
+}
+
+.btn-success {
+  --bs-btn-bg: var(--bd-success);
+  --bs-btn-border-color: var(--bd-success);
+  --bs-btn-hover-bg: var(--bd-success-hover);
+  --bs-btn-hover-border-color: var(--bd-success-hover);
+  --bs-btn-active-bg: var(--bd-success-hover);
+  --bs-btn-active-border-color: var(--bd-success-hover);
+  --bs-btn-disabled-bg: var(--bd-success);
+  --bs-btn-disabled-border-color: var(--bd-success);
+  --bs-btn-focus-shadow-rgb: 20, 128, 74;
+}
+
+.btn-danger {
+  --bs-btn-bg: var(--bd-error);
+  --bs-btn-border-color: var(--bd-error);
+  --bs-btn-hover-bg: var(--bd-error-hover);
+  --bs-btn-hover-border-color: var(--bd-error-hover);
+  --bs-btn-active-bg: var(--bd-error-hover);
+  --bs-btn-active-border-color: var(--bd-error-hover);
+  --bs-btn-disabled-bg: var(--bd-error);
+  --bs-btn-disabled-border-color: var(--bd-error);
+  --bs-btn-focus-shadow-rgb: 201, 37, 45;
+}
+
+.btn-outline-danger {
+  --bs-btn-color: var(--bd-error);
+  --bs-btn-border-color: var(--bd-error);
+  --bs-btn-hover-bg: var(--bd-error);
+  --bs-btn-hover-border-color: var(--bd-error);
+  --bs-btn-active-bg: var(--bd-error-hover);
+  --bs-btn-active-border-color: var(--bd-error-hover);
+  --bs-btn-disabled-color: var(--bd-error);
+  --bs-btn-disabled-border-color: var(--bd-error);
+  --bs-btn-focus-shadow-rgb: 201, 37, 45;
+}
+
+/* Forms */
+.form-control,
+.form-select {
+  min-height: 2.75rem;
+}
+
+.form-control:focus,
+.form-select:focus,
+.form-check-input:focus {
+  border-color: var(--bd-primary);
+  box-shadow: 0 0 0 0.25rem var(--bd-focus-ring);
+}
+
+.form-check-input:checked {
+  background-color: var(--bd-primary);
+  border-color: var(--bd-primary);
+}
+
+/* Cards and tables */
+.card {
+  --bs-card-bg: var(--bd-surface);
+  --bs-card-border-color: var(--bd-border);
+  --bs-card-border-radius: var(--bd-radius-lg);
+  box-shadow: var(--bd-shadow);
+}
+
+.table {
+  --bs-table-color: var(--bd-text);
+  --bs-table-border-color: var(--bd-border);
+}
+
+.table > thead > tr > th {
+  color: var(--bd-text-muted);
+  font-weight: 600;
+}

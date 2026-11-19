@@ -1,0 +1,28 @@
+:root {
+  /* Brand palette */
+  --bd-primary: #0b5fa5;
+  --bd-secondary: #0a2540;
+  --bd-accent: #d92d3f;
+  --bd-bg: #f3f7fb;
+  --bd-surface: #ffffff;
+  --bd-text: #0f1c2e;
+  --bd-text-muted: #55657a;
+  --bd-success: #14804a;
+  --bd-warning: #9a5b00;
+  --bd-error: #c9252d;
+
+  /* Derived shades */
+  --bd-primary-hover: color-mix(in srgb, var(--bd-primary) 88%, black);
+  --bd-primary-active: color-mix(in srgb, var(--bd-primary) 78%, black);
+  --bd-secondary-hover: color-mix(in srgb, var(--bd-secondary) 88%, white);
+  --bd-success-hover: color-mix(in srgb, var(--bd-success) 88%, black);
+  --bd-error-hover: color-mix(in srgb, var(--bd-error) 88%, black);
+  --bd-border: color-mix(in srgb, var(--bd-text) 15%, var(--bd-surface));
+  --bd-focus-ring: color-mix(in srgb, var(--bd-primary) 35%, transparent);
+
+  /* Shape, shadow and type */
+  --bd-radius: 0.5rem;
+  --bd-radius-lg: 0.75rem;
+  --bd-shadow: 0 1px 2px rgb(15 28 46 / 0.06), 0 2px 8px rgb(15 28 46 / 0.06);
+  --bd-font: system-ui, -apple-system, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+}

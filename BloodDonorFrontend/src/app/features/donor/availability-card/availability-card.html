@@ -1,0 +1,27 @@
+<div class="card">
+  <div class="card-body availability">
+    <div>
+      <h2 class="h6 mb-1">Available for requests</h2>
+      <p id="availability-help" class="text-secondary small mb-0">
+        When this is on and your blood group is verified, hospitals in your city can send you requests.
+        Requests you already received stay as they are.
+      </p>
+    </div>
+
+    <div class="form-check form-switch">
+      <input
+        id="availability-switch"
+        class="form-check-input"
+        type="checkbox"
+        role="switch"
+        aria-describedby="availability-help"
+        [checked]="available()"
+        [disabled]="disabled() || busy()"
+        (change)="toggle($event)"
+      />
+      <label class="form-check-label" for="availability-switch">
+        {{ available() ? 'Available' : 'Not available' }}
+      </label>
+    </div>
+  </div>
+</div>

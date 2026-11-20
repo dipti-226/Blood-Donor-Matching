@@ -30,6 +30,12 @@ export function errorMessage(control: AbstractControl | null | undefined): strin
   if (errors['maxlength']) {
     return `Enter at most ${errors['maxlength'].requiredLength} characters.`;
   }
+    if (errors['phone']) {
+    return 'Enter 10 to 15 digits, with an optional leading +.';
+  }
+  if (errors['futureDate']) {
+    return 'This date cannot be in the future.';
+  }
   return 'Enter a valid value.';
 }
 

@@ -1,0 +1,99 @@
+<app-page-header title="Dashboard" subtitle="Your donor status at a glance." />
+
+@switch (state().status) {
+  @case ('loading') {
+    <app-loading-state label="Loading your dashboard..." />
+  }
+  @case ('error') {
+    <app-error-banner [message]="errorText()" (retry)="load()" />
+  }
+  @default {
+    @if (overview(); as o) {
+      @if (ready()) {
+        <div class="alert alert-success" role="status">
+          <i class="bi bi-check-circle-fill me-2" aria-hidden="true"></i>
+          You are ready. Hospitals in your city can now send you requests.
+        </div>
+      }
+
+      <div class="row g-3 mb-3">
+        <div class="col-6">
+          <app-stat-card
+            label="Waiting for your answer"
+            icon="bi-hourglass-split"
+            [value]="pendingCount()"
+          />
+        </div>
+        <div class="col-6">
+          <app-stat-card label="Accepted by you" icon="bi-check2-circle" [value]="acceptedCount()" />
+        </div>
+      </div>
+
+      <div class="d-grid d-sm-block mb-3">
+        <a class="btn btn-primary" routerLink="/donor/requests">
+          @if (pendingCount() > 0) {
+            Answer {{ pendingCount() }} {{ pendingCount() === 1 ? 'request' : 'requests' }}
+          } @else {
+            View my requests
+          }
+        </a>
+      </div>
+
+      <div class="row g-3">
+        <div class="col-12 col-lg-6">
+          <div class="card h-100">
+            <div class="card-body">
+              <h2 class="h6 mb-3">Get ready to help</h2>
+              <ul class="steps list-unstyled mb-0">
+                @for (step of steps(); track step.label) {
+                  <li class="step">
+                    @if (step.done) {
+                      <i class="bi bi-check-circle-fill done" aria-hidden="true"></i>
+                      <span class="visually-hidden">Done: </span>
+                    } @else {
+                      <i class="bi bi-circle todo" aria-hidden="true"></i>
+                      <span class="visually-hidden">To do: </span>
+                    }
+                    <div class="step-text">
+                      <div>{{ step.label }}</div>
+                      @if (step.detail) {
+                        <div class="text-secondary small">{{ step.detail }}</div>
+                      }
+                    </div>
+                    @if (step.link) {
+                      <a class="btn btn-sm btn-outline-primary" [routerLink]="step.link">{{ step.linkLabel }}</a>
+                    }
+                  </li>
+                }
+              </ul>
+            </div>
+          </div>
+        </div>
+
+        <div class="col-12 col-lg-6 d-flex flex-column gap-3">
+          <app-availability-card
+            [available]="isAvailable()"
+            [disabled]="!hasProfile()"
+            (availableChange)="setAvailable($event)"
+          />
+
+          <div class="card">
+            <div class="card-body">
+              <h2 class="h6 mb-3">Your blood group</h2>
+              @if (bloodGroup(); as group) {
+                <div class="group-row">
+                  <app-blood-group-chip [group]="group.verifiedBloodGroup ?? group.declaredBloodGroup" />
+                  <app-status-badge [value]="group.status" />
+                </div>
+                <a class="small d-inline-block mt-2" routerLink="/donor/blood-group">See details</a>
+              } @else {
+                <p class="text-secondary mb-2">You have not declared a blood group yet.</p>
+                <a class="btn btn-sm btn-outline-primary" routerLink="/donor/blood-group">Declare blood group</a>
+              }
+            </div>
+          </div>
+        </div>
+      </div>
+    }
+  }
+}

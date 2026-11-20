@@ -1,0 +1,15 @@
+:host {
+  display: inline-block;
+}
+
+.chip {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.3rem;
+  padding: 0.15rem 0.7rem;
+  border-radius: 999px;
+  background: var(--bd-primary-tint);
+  color: var(--bd-primary-strong);
+  font-weight: 700;
+  line-height: 1.6;
+}

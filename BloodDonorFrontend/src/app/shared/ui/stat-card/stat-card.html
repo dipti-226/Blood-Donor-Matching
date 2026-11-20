@@ -1,0 +1,14 @@
+<div class="card h-100">
+  <div class="card-body stat">
+    @if (icon()) {
+      <i class="bi icon" [class]="icon()" aria-hidden="true"></i>
+    }
+    <div>
+      <div class="value">{{ value() }}</div>
+      <div class="label">{{ label() }}</div>
+      @if (hint()) {
+        <div class="hint">{{ hint() }}</div>
+      }
+    </div>
+  </div>
+</div>

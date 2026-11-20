@@ -1,0 +1,45 @@
+@let r = request();
+
+<article class="card request" [class.critical]="r.urgency === Critical">
+  <div class="card-body">
+    <div class="top">
+      <h3 class="h6 mb-0">{{ r.hospitalName }}</h3>
+      <div class="badges">
+        <app-status-badge [value]="r.urgency" />
+        <app-status-badge [value]="r.status" />
+      </div>
+    </div>
+
+    <div class="need">
+      <app-blood-group-chip [group]="r.bloodGroupNeeded" />
+      <span>
+        {{ r.unitsRequired }} {{ r.unitsRequired === 1 ? 'unit' : 'units' }} of {{ r.component | componentLabel }}
+      </span>
+    </div>
+
+    <p class="place text-secondary small mb-1">
+      <i class="bi bi-geo-alt" aria-hidden="true"></i>
+      {{ r.hospitalAddress }}, {{ r.hospitalArea }}, {{ r.hospitalCity }}
+    </p>
+    <p class="text-secondary small mb-0">Asked {{ r.createdAt | relativeTime }}</p>
+
+    @if (r.status === Accepted) {
+      <div class="alert alert-success mt-3 mb-0" role="status">
+        You accepted this request.
+        @if (r.sharedContactNumber) {
+          The hospital can see the number you shared: <strong>{{ r.sharedContactNumber }}</strong>.
+        }
+        Please go to the hospital as soon as you can.
+      </div>
+    }
+
+    <div class="actions">
+      @if (r.status === Pending) {
+        <button type="button" class="btn btn-primary" (click)="accept.emit(r)">Accept</button>
+        <button type="button" class="btn btn-outline-secondary" (click)="decline.emit(r)">Decline</button>
+      } @else if (r.status === Accepted) {
+        <button type="button" class="btn btn-outline-danger" (click)="decline.emit(r)">Withdraw my acceptance</button>
+      }
+    </div>
+  </div>
+</article>

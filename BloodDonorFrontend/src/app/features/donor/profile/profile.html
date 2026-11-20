@@ -1,0 +1,175 @@
+<app-page-header
+  title="My profile"
+  [subtitle]="profile() ? 'Keep your details up to date.' : 'Create your donor profile.'"
+/>
+
+@switch (state().status) {
+  @case ('loading') {
+    <app-loading-state label="Loading your profile..." />
+  }
+  @case ('error') {
+    <app-error-banner [message]="errorText()" (retry)="load()" />
+  }
+  @default {
+    <div class="row g-3">
+      <div class="col-12 col-lg-8">
+        <div class="card">
+          <div class="card-body p-4">
+            @if (formError()) {
+              <div class="alert alert-danger" role="alert">{{ formError() }}</div>
+            }
+
+            <form [formGroup]="form" (ngSubmit)="submit()" novalidate>
+              <app-form-field label="Full name" controlId="profile-name" [error]="fieldError('fullName')">
+                <input
+                  id="profile-name"
+                  type="text"
+                  class="form-control"
+                  formControlName="fullName"
+                  autocomplete="name"
+                  maxlength="200"
+                  [class.is-invalid]="!!fieldError('fullName')"
+                />
+              </app-form-field>
+
+              <div class="row">
+                <div class="col-12 col-md-6">
+                  <app-form-field label="Date of birth" controlId="profile-dob" [error]="fieldError('dateOfBirth')">
+                    <input
+                      id="profile-dob"
+                      type="date"
+                      class="form-control"
+                      formControlName="dateOfBirth"
+                      autocomplete="bday"
+                      min="1900-01-01"
+                      [max]="today"
+                      [class.is-invalid]="!!fieldError('dateOfBirth')"
+                    />
+                  </app-form-field>
+                </div>
+                <div class="col-12 col-md-6">
+                  <app-form-field label="Gender" controlId="profile-gender" [error]="fieldError('gender')">
+                    <select
+                      id="profile-gender"
+                      class="form-select"
+                      formControlName="gender"
+                      [class.is-invalid]="!!fieldError('gender')"
+                    >
+                      <option value="" disabled>Select</option>
+                      @for (gender of genders; track gender) {
+                        <option [value]="gender">{{ genderLabels[gender] }}</option>
+                      }
+                    </select>
+                  </app-form-field>
+                </div>
+              </div>
+
+              <app-form-field label="Address" controlId="profile-address" [error]="fieldError('address')">
+                <textarea
+                  id="profile-address"
+                  class="form-control"
+                  rows="2"
+                  formControlName="address"
+                  autocomplete="street-address"
+                  maxlength="500"
+                  [class.is-invalid]="!!fieldError('address')"
+                ></textarea>
+              </app-form-field>
+
+              <div class="row">
+                <div class="col-12 col-md-4">
+                  <app-form-field
+                    label="City"
+                    controlId="profile-city"
+                    hint="Requests are matched by city."
+                    [error]="fieldError('city')"
+                  >
+                    <input
+                      id="profile-city"
+                      type="text"
+                      class="form-control"
+                      formControlName="city"
+                      autocomplete="address-level2"
+                      maxlength="100"
+                      [class.is-invalid]="!!fieldError('city')"
+                    />
+                  </app-form-field>
+                </div>
+                <div class="col-12 col-md-4">
+                  <app-form-field label="Area" controlId="profile-area" [error]="fieldError('area')">
+                    <input
+                      id="profile-area"
+                      type="text"
+                      class="form-control"
+                      formControlName="area"
+                      maxlength="100"
+                      [class.is-invalid]="!!fieldError('area')"
+                    />
+                  </app-form-field>
+                </div>
+                <div class="col-12 col-md-4">
+                  <app-form-field label="Pincode" controlId="profile-pincode" [error]="fieldError('pincode')">
+                    <input
+                      id="profile-pincode"
+                      type="text"
+                      inputmode="numeric"
+                      class="form-control"
+                      formControlName="pincode"
+                      autocomplete="postal-code"
+                      maxlength="10"
+                      [class.is-invalid]="!!fieldError('pincode')"
+                    />
+                  </app-form-field>
+                </div>
+              </div>
+
+              <div class="d-grid d-sm-flex justify-content-sm-end">
+                <button
+                  type="submit"
+                  class="btn btn-primary"
+                  [disabled]="busy() || (profile() !== null && !form.dirty)"
+                >
+                  @if (busy()) {
+                    <span class="spinner-border spinner-border-sm me-2" aria-hidden="true"></span>Saving...
+                  } @else if (profile()) {
+                    Save changes
+                  } @else {
+                    Create profile
+                  }
+                </button>
+              </div>
+            </form>
+          </div>
+        </div>
+      </div>
+
+      <div class="col-12 col-lg-4 d-flex flex-column gap-3">
+        @if (profile(); as saved) {
+          <app-availability-card [available]="available()" (availableChange)="setAvailable($event)" />
+          <p class="text-secondary small mb-0">Last saved {{ formatDateTime(saved.updatedAt) }}.</p>
+        } @else {
+          <div class="card">
+            <div class="card-body">
+              <h2 class="h6">Availability</h2>
+              <p class="text-secondary small mb-0">Create your profile first, then you can switch availability on.</p>
+            </div>
+          </div>
+        }
+
+        <div class="card">
+          <div class="card-body">
+            <h2 class="h6"><i class="bi bi-shield-lock me-1" aria-hidden="true"></i>Your privacy</h2>
+            <p class="text-secondary small mb-2">
+              Hospitals searching for donors see only a blood group, a city and an area. They do not see your name,
+              address or date of birth.
+            </p>
+            <p class="text-secondary small mb-0">
+              Your name and the contact number you choose to share are shown to a hospital only after you accept its
+              request.
+            </p>
+          </div>
+        </div>
+      </div>
+    </div>
+  }
+}

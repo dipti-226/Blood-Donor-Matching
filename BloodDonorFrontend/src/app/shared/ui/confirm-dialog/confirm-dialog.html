@@ -1,0 +1,22 @@
+<app-modal-dialog [title]="title()" [dismissible]="!busy()" (closed)="cancelled.emit()">
+  <p class="mb-0">{{ message() }}</p>
+
+  <ng-container ngProjectAs="[dialog-footer]">
+    <button type="button" class="btn btn-outline-secondary" [disabled]="busy()" (click)="cancelled.emit()">
+      {{ cancelLabel() }}
+    </button>
+    <button
+      type="button"
+      class="btn"
+      [class.btn-danger]="danger()"
+      [class.btn-primary]="!danger()"
+      [disabled]="busy()"
+      (click)="confirmed.emit()"
+    >
+      @if (busy()) {
+        <span class="spinner-border spinner-border-sm me-2" aria-hidden="true"></span>
+      }
+      {{ confirmLabel() }}
+    </button>
+  </ng-container>
+</app-modal-dialog>

@@ -44,11 +44,23 @@ export const routes: Routes = [
         data: { roles: [Roles.Donor] },
         children: [
           { path: '', pathMatch: 'full', redirectTo: 'dashboard' },
-          { path: 'dashboard', loadComponent: statusPage, data: { title: 'Donor dashboard', message: SOON } },
-          { path: 'profile', loadComponent: statusPage, data: { title: 'My profile', message: SOON } },
-          { path: 'blood-group', loadComponent: statusPage, data: { title: 'My blood group', message: SOON } },
-          { path: 'requests', loadComponent: statusPage, data: { title: 'My requests', message: SOON } },
-        ],
+                    {
+            path: 'dashboard',
+            loadComponent: () => import('./features/donor/dashboard/dashboard').then((m) => m.DonorDashboard),
+          },
+          {
+            path: 'profile',
+            loadComponent: () => import('./features/donor/profile/profile').then((m) => m.DonorProfilePage),
+          },
+          {
+            path: 'blood-group',
+            loadComponent: () => import('./features/donor/blood-group/blood-group').then((m) => m.DonorBloodGroupPage),
+          },
+          {
+            path: 'requests',
+            loadComponent: () => import('./features/donor/requests/requests').then((m) => m.DonorRequestsPage),
+          },
+        ]
       },
       {
         path: 'hospital',

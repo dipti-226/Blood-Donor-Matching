@@ -1,0 +1,22 @@
+<dialog
+  #dialog
+  class="bd-dialog"
+  [attr.aria-labelledby]="titleId"
+  (cancel)="onCancel($event)"
+  (close)="onClose()"
+  (mousedown)="onMouseDown($event)"
+  (click)="onClick($event)"
+>
+  <div class="panel">
+    <div class="header">
+      <h2 class="h5 mb-0" [id]="titleId">{{ title() }}</h2>
+      <button type="button" class="btn-close" aria-label="Close" [disabled]="!dismissible()" (click)="close()"></button>
+    </div>
+    <div class="body">
+      <ng-content />
+    </div>
+    <div class="footer">
+      <ng-content select="[dialog-footer]" />
+    </div>
+  </div>
+</dialog>

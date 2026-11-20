@@ -1,0 +1,56 @@
+.bd-dialog {
+  width: min(32rem, calc(100% - 2rem));
+  max-height: calc(100dvh - 2rem);
+  padding: 0;
+  border: 0;
+  border-radius: var(--bd-radius-lg);
+  background: var(--bd-surface);
+  color: var(--bd-text);
+  box-shadow: 0 12px 40px rgb(31 36 48 / 0.3);
+}
+
+.bd-dialog::backdrop {
+  background: rgb(31 36 48 / 0.55);
+}
+
+.panel {
+  display: flex;
+  flex-direction: column;
+  max-height: calc(100dvh - 2rem);
+}
+
+.header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 1rem;
+  padding: 1rem 1.25rem;
+  border-bottom: 1px solid var(--bd-border);
+}
+
+.body {
+  padding: 1.25rem;
+  overflow-y: auto;
+}
+
+.footer {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: flex-end;
+  gap: 0.5rem;
+  padding: 0.9rem 1.25rem;
+  border-top: 1px solid var(--bd-border);
+}
+
+@media (prefers-reduced-motion: no-preference) {
+  .bd-dialog[open] {
+    animation: bd-dialog-in 120ms ease-out;
+  }
+}
+
+@keyframes bd-dialog-in {
+  from {
+    opacity: 0;
+    transform: translateY(0.5rem);
+  }
+}

@@ -1,0 +1,30 @@
+:host {
+  display: block;
+}
+
+.stat {
+  display: flex;
+  align-items: center;
+  gap: 0.9rem;
+}
+
+.icon {
+  font-size: 1.6rem;
+  color: var(--bd-primary);
+}
+
+.value {
+  font-size: 1.6rem;
+  font-weight: 700;
+  line-height: 1.1;
+}
+
+.label {
+  color: var(--bd-text-muted);
+  font-size: 0.9rem;
+}
+
+.hint {
+  color: var(--bd-text-muted);
+  font-size: 0.8rem;
+}

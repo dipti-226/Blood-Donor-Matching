@@ -1,0 +1,66 @@
+<app-page-header title="My requests" subtitle="Hospitals asking for your help right now.">
+  <button type="button" class="btn btn-outline-primary btn-sm" (click)="load()">
+    <i class="bi bi-arrow-clockwise me-1" aria-hidden="true"></i>Refresh
+  </button>
+</app-page-header>
+
+@switch (state().status) {
+  @case ('loading') {
+    <app-loading-state label="Loading your requests..." />
+  }
+  @case ('error') {
+    <app-error-banner [message]="errorText()" (retry)="load()" />
+  }
+  @default {
+    @if (items().length === 0) {
+      <div class="card">
+        <app-empty-state
+          icon="bi-inbox"
+          title="No open requests"
+          message="When a hospital needs your blood group, the request will appear here and in your notifications."
+        >
+          <a class="btn btn-sm btn-outline-primary" routerLink="/donor/dashboard">Check I am ready</a>
+        </app-empty-state>
+      </div>
+    } @else {
+      @if (pending().length > 0) {
+        <h2 class="h6 text-secondary">Waiting for your answer ({{ pending().length }})</h2>
+        <div class="list">
+          @for (item of pending(); track item.donorRequestId) {
+            <app-request-card [request]="item" (accept)="openAccept($event)" (decline)="openDecline($event)" />
+          }
+        </div>
+      }
+
+      @if (accepted().length > 0) {
+        <h2 class="h6 text-secondary" [class.mt-4]="pending().length > 0">Accepted by you ({{ accepted().length }})</h2>
+        <div class="list">
+          @for (item of accepted(); track item.donorRequestId) {
+            <app-request-card [request]="item" (accept)="openAccept($event)" (decline)="openDecline($event)" />
+          }
+        </div>
+      }
+    }
+  }
+}
+
+@if (acceptTarget(); as target) {
+  <app-accept-request-dialog
+    [request]="target"
+    (accepted)="onAccepted()"
+    (cancelled)="closeAccept()"
+    (stale)="onStale($event)"
+  />
+}
+
+@if (declineTarget()) {
+  <app-confirm-dialog
+    [title]="declineTitle()"
+    [message]="declineMessage()"
+    [confirmLabel]="declineLabel()"
+    [danger]="true"
+    [busy]="declining()"
+    (confirmed)="confirmDecline()"
+    (cancelled)="closeDecline()"
+  />
+}

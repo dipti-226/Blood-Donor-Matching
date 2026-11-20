@@ -46,3 +46,10 @@ export const pastDate: ValidatorFn = (control: AbstractControl): ValidationError
   }
   return value < '1900-01-01' ? { date: true } : null;
 };
+// For number inputs: whole numbers only (an empty field is left to the required validator).
+export const wholeNumber: ValidatorFn = (control: AbstractControl): ValidationErrors | null => {
+  const value = control.value;
+  return value === null || value === undefined || value === '' || Number.isInteger(Number(value))
+    ? null
+    : { whole: true };
+};

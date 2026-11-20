@@ -30,7 +30,16 @@ export function errorMessage(control: AbstractControl | null | undefined): strin
   if (errors['maxlength']) {
     return `Enter at most ${errors['maxlength'].requiredLength} characters.`;
   }
-    if (errors['phone']) {
+    if (errors['whole']) {
+    return 'Enter a whole number.';
+  }
+  if (errors['min']) {
+    return `Enter ${errors['min'].min} or more.`;
+  }
+  if (errors['max']) {
+    return `Enter ${errors['max'].max} or less.`;
+  }
+  if (errors['phone']) {
     return 'Enter 10 to 15 digits, with an optional leading +.';
   }
   if (errors['futureDate']) {

@@ -1,0 +1,114 @@
+<app-page-header title="Verification queue" subtitle="Confirm the blood groups donors have declared." />
+
+<div class="btn-group mb-3" role="group" aria-label="Filter by status">
+  @for (tab of tabs; track tab) {
+    <button
+      type="button"
+      class="btn btn-sm"
+      [class.btn-primary]="status() === tab"
+      [class.btn-outline-primary]="status() !== tab"
+      [attr.aria-pressed]="status() === tab"
+      (click)="setStatus(tab)"
+    >
+      {{ tabLabels[tab] }}
+    </button>
+  }
+</div>
+
+@switch (state().status) {
+  @case ('loading') {
+    <app-loading-state label="Loading blood groups..." />
+  }
+  @case ('error') {
+    <app-error-banner [message]="errorText()" (retry)="load()" />
+  }
+  @default {
+    @if (items().length === 0) {
+      <div class="card">
+        <app-empty-state
+          icon="bi-patch-check"
+          [title]="'Nothing ' + tabLabels[status()].toLowerCase()"
+          [message]="status() === Pending ? 'New donor declarations will appear here.' : ''"
+        />
+      </div>
+    } @else {
+      <div class="card">
+        <div class="table-responsive">
+          <table class="table table-hover align-middle mb-0">
+            <thead>
+              <tr>
+                <th scope="col">Donor</th>
+                <th scope="col">Declared</th>
+                <th scope="col">Confirmed</th>
+                <th scope="col">Status</th>
+                <th scope="col">Submitted</th>
+                <th scope="col">Decision</th>
+                <th scope="col"><span class="visually-hidden">Actions</span></th>
+              </tr>
+            </thead>
+            <tbody>
+              @for (item of items(); track item.id) {
+                <tr>
+                  <td>
+                    @if (item.donorFullName) {
+                      {{ item.donorFullName }}
+                    } @else {
+                      <span class="text-secondary">No profile yet</span>
+                    }
+                  </td>
+                  <td><app-blood-group-chip [group]="item.declaredBloodGroup" /></td>
+                  <td>
+                    @if (item.verifiedBloodGroup) {
+                      <app-blood-group-chip [group]="item.verifiedBloodGroup" />
+                    } @else {
+                      -
+                    }
+                  </td>
+                  <td><app-status-badge [value]="item.status" /></td>
+                  <td class="text-nowrap">{{ item.createdAt | relativeTime }}</td>
+                  <td class="decision">
+                    @if (item.status === Rejected) {
+                      {{ item.rejectionReason }}
+                    } @else if (item.verifiedAt) {
+                      {{ formatDateTime(item.verifiedAt) }}
+                    } @else {
+                      -
+                    }
+                  </td>
+                  <td class="text-end text-nowrap">
+                    @if (item.status === Pending) {
+                      <button type="button" class="btn btn-sm btn-success me-1" (click)="approveTarget.set(item)">
+                        Approve
+                      </button>
+                      <button type="button" class="btn btn-sm btn-outline-danger" (click)="rejectTarget.set(item)">
+                        Reject
+                      </button>
+                    }
+                  </td>
+                </tr>
+              }
+            </tbody>
+          </table>
+        </div>
+      </div>
+    }
+  }
+}
+
+@if (approveTarget(); as target) {
+  <app-approve-dialog
+    [item]="target"
+    (approved)="onApproved()"
+    (cancelled)="approveTarget.set(null)"
+    (stale)="onStale($event)"
+  />
+}
+
+@if (rejectTarget(); as target) {
+  <app-reject-dialog
+    [item]="target"
+    (rejected)="onRejected()"
+    (cancelled)="rejectTarget.set(null)"
+    (stale)="onStale($event)"
+  />
+}

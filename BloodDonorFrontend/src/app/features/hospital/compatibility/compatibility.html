@@ -1,0 +1,76 @@
+<app-page-header title="Compatibility checker" subtitle="Which donor blood groups can give to a patient." />
+
+<div class="card narrow mb-3">
+  <div class="card-body p-4">
+    @if (error()) {
+      <div class="alert alert-danger" role="alert">{{ error() }}</div>
+    }
+
+    <form [formGroup]="form" (ngSubmit)="submit()" novalidate>
+      <div class="row">
+        <div class="col-12 col-sm-6">
+          <app-form-field label="Patient blood group" controlId="comp-group" [error]="fieldError('recipientBloodGroup')">
+            <select
+              id="comp-group"
+              class="form-select"
+              formControlName="recipientBloodGroup"
+              [class.is-invalid]="!!fieldError('recipientBloodGroup')"
+            >
+              <option value="" disabled>Select</option>
+              @for (group of groups; track group) {
+                <option [value]="group">{{ groupLabels[group] }}</option>
+              }
+            </select>
+          </app-form-field>
+        </div>
+        <div class="col-12 col-sm-6">
+          <app-form-field label="Blood component" controlId="comp-component" [error]="fieldError('component')">
+            <select
+              id="comp-component"
+              class="form-select"
+              formControlName="component"
+              [class.is-invalid]="!!fieldError('component')"
+            >
+              <option value="" disabled>Select</option>
+              @for (component of components; track component) {
+                <option [value]="component">{{ componentLabels[component] }}</option>
+              }
+            </select>
+          </app-form-field>
+        </div>
+      </div>
+
+      <button type="submit" class="btn btn-primary" [disabled]="busy()">
+        @if (busy()) {
+          <span class="spinner-border spinner-border-sm me-2" aria-hidden="true"></span>Checking...
+        } @else {
+          Check compatibility
+        }
+      </button>
+    </form>
+  </div>
+</div>
+
+<div aria-live="polite">
+  @if (result(); as r) {
+    <div class="card narrow">
+      <div class="card-body p-4">
+        <h2 class="h6">
+          Donors who can give {{ componentLabels[r.component].toLowerCase() }} to a
+          {{ groupLabels[r.recipientBloodGroup] }} patient
+        </h2>
+        <div class="chips">
+          @for (group of r.compatibleDonorBloodGroups; track group) {
+            <app-blood-group-chip [group]="group" />
+          }
+        </div>
+      </div>
+    </div>
+  }
+</div>
+
+<p class="text-secondary small narrow mt-3 mb-0">
+  <i class="bi bi-info-circle me-1" aria-hidden="true"></i>
+  These are standard ABO and Rh rules. They describe compatibility only, not whether a donor is medically eligible.
+  Qualified staff must assess every donor.
+</p>

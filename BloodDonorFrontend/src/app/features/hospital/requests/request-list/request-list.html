@@ -1,0 +1,85 @@
+<app-page-header title="Blood requests" subtitle="Requests your hospital has raised.">
+  <a class="btn btn-primary btn-sm" routerLink="/hospital/requests/new">
+    <i class="bi bi-plus-lg me-1" aria-hidden="true"></i>New blood request
+  </a>
+</app-page-header>
+
+<div class="btn-group mb-3" role="group" aria-label="Filter by status">
+  @for (tab of tabs; track tab) {
+    <button
+      type="button"
+      class="btn btn-sm"
+      [class.btn-primary]="status() === tab"
+      [class.btn-outline-primary]="status() !== tab"
+      [attr.aria-pressed]="status() === tab"
+      (click)="setStatus(tab)"
+    >
+      {{ tabLabels[tab] }}
+    </button>
+  }
+</div>
+
+@switch (state().status) {
+  @case ('loading') {
+    <app-loading-state label="Loading blood requests..." />
+  }
+  @case ('error') {
+    <app-error-banner [message]="errorText()" (retry)="load()" />
+  }
+  @default {
+    @if (items().length === 0) {
+      <div class="card">
+        <app-empty-state
+          icon="bi-droplet"
+          [title]="'No ' + tabLabels[status()].toLowerCase() + ' requests'"
+          [message]="isOpenTab() ? 'Create a blood request to start finding donors.' : ''"
+        >
+          @if (isOpenTab()) {
+            <a class="btn btn-sm btn-primary" routerLink="/hospital/requests/new">New blood request</a>
+          }
+        </app-empty-state>
+      </div>
+    } @else {
+      <div class="card">
+        <div class="table-responsive">
+          <table class="table table-hover align-middle mb-0">
+            <thead>
+              <tr>
+                <th scope="col">Blood group</th>
+                <th scope="col">Component</th>
+                <th scope="col">Units</th>
+                <th scope="col">Urgency</th>
+                <th scope="col">Status</th>
+                <th scope="col">Donors</th>
+                <th scope="col">{{ isOpenTab() ? 'Raised' : 'Closed' }}</th>
+                <th scope="col"><span class="visually-hidden">Actions</span></th>
+              </tr>
+            </thead>
+            <tbody>
+              @for (request of items(); track request.id) {
+                <tr>
+                  <td><app-blood-group-chip [group]="request.patientBloodGroup" /></td>
+                  <td>{{ request.component | componentLabel }}</td>
+                  <td>{{ request.unitsRequired }}</td>
+                  <td><app-status-badge [value]="request.urgency" /></td>
+                  <td><app-status-badge [value]="request.status" /></td>
+                  <td>{{ request.acceptedCount }} accepted / {{ request.askedCount }} asked</td>
+                  <td class="text-nowrap">
+                    @if (isOpenTab()) {
+                      {{ request.createdAt | relativeTime }}
+                    } @else {
+                      {{ formatDateTime(request.closedAt) }}
+                    }
+                  </td>
+                  <td class="text-end">
+                    <a class="btn btn-sm btn-outline-primary" [routerLink]="['/hospital/requests', request.id]">View</a>
+                  </td>
+                </tr>
+              }
+            </tbody>
+          </table>
+        </div>
+      </div>
+    }
+  }
+}

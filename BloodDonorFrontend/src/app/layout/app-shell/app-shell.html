@@ -3,21 +3,18 @@
     <a class="brand" routerLink="/"><i class="bi bi-droplet-fill"></i> BloodDonor</a>
 
     @if (hospital(); as h) {
-      <span class="context d-none d-md-inline">{{ h.name }}</span>
+    <span class="context d-none d-md-inline">{{ h.name }}</span>
     }
 
     <div class="topbar-actions">
       @if (showBell()) {
-        <a
-          class="icon-link"
-          routerLink="/notifications"
-          [attr.aria-label]="unread.count() > 0 ? 'Notifications, ' + unread.count() + ' unread' : 'Notifications'"
-        >
-          <i class="bi bi-bell"></i>
-          @if (unread.count() > 0) {
-            <span class="bell-badge">{{ unread.count() > 99 ? '99+' : unread.count() }}</span>
-          }
-        </a>
+      <a class="icon-link" routerLink="/notifications"
+        [attr.aria-label]="unread.count() > 0 ? 'Notifications, ' + unread.count() + ' unread' : 'Notifications'">
+        <i class="bi bi-bell"></i>
+        @if (unread.count() > 0) {
+        <span class="bell-badge">{{ unread.count() > 99 ? '99+' : unread.count() }}</span>
+        }
+      </a>
       }
       <span class="user d-none d-md-inline">{{ session.user()?.email }}</span>
       <button type="button" class="btn btn-sm btn-outline-primary" (click)="signOut()">Sign out</button>
@@ -25,48 +22,41 @@
   </header>
 
   @if (!isDonor()) {
-    <nav class="pills d-md-none" aria-label="Main">
-      @for (item of navItems(); track item.route) {
-        <a
-          class="pill"
-          [routerLink]="item.route"
-          routerLinkActive="active"
-          [routerLinkActiveOptions]="{ exact: !!item.exact }"
-        >
-          {{ item.label }}
-        </a>
-      }
-    </nav>
+  <nav class="pills d-md-none" aria-label="Main">
+    @for (item of navItems(); track item.route) {
+    <a class="pill" [routerLink]="item.route" routerLinkActive="active"
+      [routerLinkActiveOptions]="{ exact: !!item.exact }">
+      {{ item.label }}
+    </a>
+    }
+  </nav>
   }
 
   <div class="body">
     <nav class="sidebar d-none d-md-flex" aria-label="Main">
       @for (item of navItems(); track item.route) {
-        <a
-          class="nav-link-item"
-          [routerLink]="item.route"
-          routerLinkActive="active"
-          [routerLinkActiveOptions]="{ exact: !!item.exact }"
-        >
-          <i class="bi" [class]="item.icon"></i>
-          {{ item.label }}
-        </a>
+      <a class="nav-link-item" [routerLink]="item.route" routerLinkActive="active"
+        [routerLinkActiveOptions]="{ exact: !!item.exact }">
+        <i class="bi" [class]="item.icon"></i>
+        {{ item.label }}
+      </a>
       }
     </nav>
 
     <main class="content" [class.with-bottom-nav]="isDonor()">
+      <app-hospital-status-notice />
       <router-outlet />
     </main>
   </div>
 
   @if (isDonor()) {
-    <nav class="bottom-nav d-md-none" aria-label="Main">
-      @for (item of bottomItems(); track item.route) {
-        <a [routerLink]="item.route" routerLinkActive="active">
-          <i class="bi" [class]="item.icon"></i>
-          <span>{{ item.label }}</span>
-        </a>
-      }
-    </nav>
+  <nav class="bottom-nav d-md-none" aria-label="Main">
+    @for (item of bottomItems(); track item.route) {
+    <a [routerLink]="item.route" routerLinkActive="active">
+      <i class="bi" [class]="item.icon"></i>
+      <span>{{ item.label }}</span>
+    </a>
+    }
+  </nav>
   }
 </div>

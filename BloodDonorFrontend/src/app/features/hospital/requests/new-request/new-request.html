@@ -1,0 +1,92 @@
+<app-page-header title="New blood request" subtitle="Tell us what the patient needs." />
+
+<div class="card narrow">
+  <div class="card-body p-4">
+    @if (error()) {
+      <div class="alert alert-danger" role="alert">{{ error() }}</div>
+    }
+
+    <form [formGroup]="form" (ngSubmit)="submit()" novalidate>
+      <app-form-field label="Patient blood group" controlId="req-group" [error]="fieldError('patientBloodGroup')">
+        <select
+          id="req-group"
+          class="form-select"
+          formControlName="patientBloodGroup"
+          [class.is-invalid]="!!fieldError('patientBloodGroup')"
+        >
+          <option value="" disabled>Select</option>
+          @for (group of groups; track group) {
+            <option [value]="group">{{ groupLabels[group] }}</option>
+          }
+        </select>
+      </app-form-field>
+
+      <app-form-field label="Blood component" controlId="req-component" [error]="fieldError('component')">
+        <select
+          id="req-component"
+          class="form-select"
+          formControlName="component"
+          [class.is-invalid]="!!fieldError('component')"
+        >
+          <option value="" disabled>Select</option>
+          @for (component of components; track component) {
+            <option [value]="component">{{ componentLabels[component] }}</option>
+          }
+        </select>
+      </app-form-field>
+
+      <div class="row">
+        <div class="col-12 col-sm-6">
+          <app-form-field
+            label="Units required"
+            controlId="req-units"
+            hint="From 1 to 50."
+            [error]="fieldError('unitsRequired')"
+          >
+            <input
+              id="req-units"
+              type="number"
+              inputmode="numeric"
+              class="form-control"
+              formControlName="unitsRequired"
+              min="1"
+              max="50"
+              step="1"
+              [class.is-invalid]="!!fieldError('unitsRequired')"
+            />
+          </app-form-field>
+        </div>
+        <div class="col-12 col-sm-6">
+          <app-form-field label="Urgency" controlId="req-urgency" [error]="fieldError('urgency')">
+            <select
+              id="req-urgency"
+              class="form-select"
+              formControlName="urgency"
+              [class.is-invalid]="!!fieldError('urgency')"
+            >
+              @for (urgency of urgencies; track urgency) {
+                <option [value]="urgency">{{ urgencyLabels[urgency] }}</option>
+              }
+            </select>
+          </app-form-field>
+        </div>
+      </div>
+
+      <p class="text-secondary small">
+        After you create the request you can find matching donors and ask them to help. Donors only see the blood
+        group, component, units and your hospital's name and address.
+      </p>
+
+      <div class="actions">
+        <a class="btn btn-outline-secondary" routerLink="/hospital/requests">Cancel</a>
+        <button type="submit" class="btn btn-primary" [disabled]="busy()">
+          @if (busy()) {
+            <span class="spinner-border spinner-border-sm me-2" aria-hidden="true"></span>Creating...
+          } @else {
+            Create request
+          }
+        </button>
+      </div>
+    </form>
+  </div>
+</div>

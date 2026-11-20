@@ -1,0 +1,44 @@
+<app-modal-dialog title="Reject blood group" [dismissible]="!busy()" (closed)="cancelled.emit()">
+  @let i = item();
+
+  <p>
+    Reject <strong>{{ i.donorFullName ?? 'this donor' }}</strong>'s declaration of
+    <strong>{{ labels[i.declaredBloodGroup] }}</strong>. The donor will see your reason and can submit again.
+  </p>
+
+  @if (error()) {
+    <div class="alert alert-danger" role="alert">{{ error() }}</div>
+  }
+
+  <form id="reject-form" [formGroup]="form" (ngSubmit)="submit()" novalidate>
+    <app-form-field
+      label="Reason"
+      controlId="reject-reason"
+      hint="Up to 1000 characters. Say what the donor should fix."
+      [error]="fieldError()"
+    >
+      <textarea
+        id="reject-reason"
+        class="form-control"
+        rows="4"
+        maxlength="1000"
+        formControlName="reason"
+        autofocus
+        [class.is-invalid]="!!fieldError()"
+      ></textarea>
+    </app-form-field>
+  </form>
+
+  <ng-container ngProjectAs="[dialog-footer]">
+    <button type="button" class="btn btn-outline-secondary" [disabled]="busy()" (click)="cancelled.emit()">
+      Cancel
+    </button>
+    <button type="submit" form="reject-form" class="btn btn-danger" [disabled]="busy()">
+      @if (busy()) {
+        <span class="spinner-border spinner-border-sm me-2" aria-hidden="true"></span>Rejecting...
+      } @else {
+        Reject
+      }
+    </button>
+  </ng-container>
+</app-modal-dialog>

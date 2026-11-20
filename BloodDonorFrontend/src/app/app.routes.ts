@@ -68,12 +68,30 @@ export const routes: Routes = [
         data: { roles: [Roles.HospitalAdmin, Roles.HospitalStaff] },
         children: [
           { path: '', pathMatch: 'full', redirectTo: 'dashboard' },
-          { path: 'dashboard', loadComponent: statusPage, data: { title: 'Hospital dashboard', message: SOON } },
-          { path: 'requests', loadComponent: statusPage, data: { title: 'Blood requests', message: SOON } },
-          { path: 'requests/new', loadComponent: statusPage, data: { title: 'New blood request', message: SOON } },
+          {
+            path: 'dashboard',
+            loadComponent: () => import('./features/hospital/dashboard/dashboard').then((m) => m.HospitalDashboard),
+          },
+          {
+            path: 'requests',
+            loadComponent: () =>
+              import('./features/hospital/requests/request-list/request-list').then((m) => m.RequestList),
+          },
+          {
+            path: 'requests/new',
+            loadComponent: () =>
+              import('./features/hospital/requests/new-request/new-request').then((m) => m.NewRequest),
+          },
           { path: 'requests/:id', loadComponent: statusPage, data: { title: 'Blood request', message: SOON } },
-          { path: 'verification', loadComponent: statusPage, data: { title: 'Verification queue', message: SOON } },
-          { path: 'compatibility', loadComponent: statusPage, data: { title: 'Compatibility checker', message: SOON } },
+          {
+            path: 'verification',
+            loadComponent: () => import('./features/hospital/verification/verification').then((m) => m.Verification),
+          },
+          {
+            path: 'compatibility',
+            loadComponent: () =>
+              import('./features/hospital/compatibility/compatibility').then((m) => m.Compatibility),
+          },
           { path: 'profile', loadComponent: statusPage, data: { title: 'Hospital profile', message: SOON } },
           {
             path: 'staff',

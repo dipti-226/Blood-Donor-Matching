@@ -6,11 +6,11 @@ import { Roles } from '../../core/models/enums';
 import { UnreadCountService } from '../../core/notifications/unread-count.service';
 import { ToastService } from '../../core/ui/toast.service';
 import { NAV_ITEMS } from '../nav-items';
+import { HospitalStatusNotice } from '../hospital-status-notice/hospital-status-notice';
 
 @Component({
   selector: 'app-shell',
-  imports: [RouterOutlet, RouterLink, RouterLinkActive],
-  templateUrl: './app-shell.html',
+  imports: [RouterOutlet, RouterLink, RouterLinkActive, HospitalStatusNotice],  templateUrl: './app-shell.html',
   styleUrl: './app-shell.css',
 })
 export class AppShell implements OnInit, OnDestroy {

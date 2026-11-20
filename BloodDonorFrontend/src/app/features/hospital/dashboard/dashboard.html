@@ -1,0 +1,94 @@
+@switch (state().status) {
+  @case ('loading') {
+    <app-page-header title="Dashboard" />
+    <app-loading-state label="Loading your dashboard..." />
+  }
+  @case ('error') {
+    <app-page-header title="Dashboard" />
+    <app-error-banner [message]="errorText()" (retry)="load()" />
+  }
+  @default {
+    @if (overview(); as o) {
+      <app-page-header title="Dashboard" [subtitle]="o.hospital.name">
+        @if (o.active) {
+          <a class="btn btn-primary btn-sm" routerLink="/hospital/requests/new">
+            <i class="bi bi-plus-lg me-1" aria-hidden="true"></i>New blood request
+          </a>
+        }
+      </app-page-header>
+
+      @if (!o.active) {
+        <div class="card">
+          <app-empty-state
+            icon="bi-hourglass-split"
+            title="Nothing to show yet"
+            message="Requests and reviews appear here once your hospital is active."
+          />
+        </div>
+      } @else {
+        <div class="row g-3 mb-3">
+          <div class="col-6 col-lg-3">
+            <app-stat-card label="Open requests" icon="bi-droplet-half" [value]="o.open.length" />
+          </div>
+          <div class="col-6 col-lg-3">
+            <app-stat-card
+              label="Donors accepted"
+              icon="bi-check2-circle"
+              hint="across open requests"
+              [value]="acceptedDonors()"
+            />
+          </div>
+          <div class="col-6 col-lg-3">
+            <a class="stat-link" routerLink="/hospital/verification">
+              <app-stat-card label="Blood groups to review" icon="bi-patch-check" [value]="o.pendingVerifications" />
+            </a>
+          </div>
+          <div class="col-6 col-lg-3">
+            <a class="stat-link" routerLink="/notifications">
+              <app-stat-card label="Unread notifications" icon="bi-bell" [value]="unread.count()" />
+            </a>
+          </div>
+        </div>
+
+        <div class="card">
+          <div class="card-body">
+            <div class="head">
+              <h2 class="h6 mb-0">Open requests</h2>
+              <a class="small" routerLink="/hospital/requests">See all</a>
+            </div>
+
+            @if (recent().length === 0) {
+              <app-empty-state
+                icon="bi-droplet"
+                title="No open requests"
+                message="Create a blood request to start finding donors."
+              >
+                <a class="btn btn-sm btn-primary" routerLink="/hospital/requests/new">New blood request</a>
+              </app-empty-state>
+            } @else {
+              <ul class="list-unstyled mb-0">
+                @for (request of recent(); track request.id) {
+                  <li class="row-item">
+                    <app-blood-group-chip [group]="request.patientBloodGroup" />
+                    <div class="info">
+                      <div>
+                        {{ request.unitsRequired }} {{ request.unitsRequired === 1 ? 'unit' : 'units' }} of
+                        {{ request.component | componentLabel }}
+                      </div>
+                      <div class="text-secondary small">
+                        {{ request.acceptedCount }} accepted of {{ request.askedCount }} asked ·
+                        {{ request.createdAt | relativeTime }}
+                      </div>
+                    </div>
+                    <app-status-badge [value]="request.urgency" />
+                    <a class="btn btn-sm btn-outline-primary" [routerLink]="['/hospital/requests', request.id]">View</a>
+                  </li>
+                }
+              </ul>
+            }
+          </div>
+        </div>
+      }
+    }
+  }
+}

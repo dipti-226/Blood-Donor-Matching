@@ -1,0 +1,41 @@
+.notification {
+  display: flex;
+  align-items: flex-start;
+  gap: 0.75rem;
+  padding: 0.9rem 1rem;
+}
+
+.notification.unread {
+  border-left: 3px solid var(--bd-primary);
+}
+
+.icon {
+  font-size: 1.25rem;
+  color: var(--bd-text-muted);
+}
+
+.body {
+  flex: 1;
+  min-width: 0;
+}
+
+.meta {
+  font-size: 0.8rem;
+  color: var(--bd-text-muted);
+}
+
+.actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.5rem;
+}
+
+@media (max-width: 575.98px) {
+  .notification {
+    flex-wrap: wrap;
+  }
+
+  .actions {
+    width: 100%;
+  }
+}

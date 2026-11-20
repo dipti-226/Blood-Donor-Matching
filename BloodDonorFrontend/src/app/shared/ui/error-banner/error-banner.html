@@ -1,0 +1,6 @@
+<div class="alert alert-danger banner" role="alert">
+  <span>{{ message() }}</span>
+  @if (showRetry()) {
+    <button type="button" class="btn btn-sm btn-outline-danger" (click)="retry.emit()">Try again</button>
+  }
+</div>

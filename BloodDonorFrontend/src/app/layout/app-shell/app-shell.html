@@ -8,12 +8,19 @@
 
     <div class="topbar-actions">
       @if (showBell()) {
-        <a class="icon-link" routerLink="/notifications" aria-label="Notifications">
+        <a
+          class="icon-link"
+          routerLink="/notifications"
+          [attr.aria-label]="unread.count() > 0 ? 'Notifications, ' + unread.count() + ' unread' : 'Notifications'"
+        >
           <i class="bi bi-bell"></i>
+          @if (unread.count() > 0) {
+            <span class="bell-badge">{{ unread.count() > 99 ? '99+' : unread.count() }}</span>
+          }
         </a>
       }
       <span class="user d-none d-md-inline">{{ session.user()?.email }}</span>
-      <button type="button" class="btn btn-sm btn-outline-light" (click)="signOut()">Sign out</button>
+      <button type="button" class="btn btn-sm btn-outline-primary" (click)="signOut()">Sign out</button>
     </div>
   </header>
 

@@ -12,20 +12,21 @@
   align-items: center;
   gap: 1rem;
   min-height: 56px;
-  padding: 0.5rem 1rem;
-  background: var(--bd-secondary);
-  color: #ffffff;
+  padding: 0.5rem 1.25rem;
+  background: var(--bd-surface);
+  color: var(--bd-text);
+  border-bottom: 1px solid var(--bd-border);
 }
 
 .brand {
-  color: #ffffff;
+  color: var(--bd-primary);
   font-weight: 700;
   font-size: 1.1rem;
   text-decoration: none;
 }
 
 .context {
-  color: rgb(255 255 255 / 0.8);
+  color: var(--bd-text-muted);
 }
 
 .topbar-actions {
@@ -36,20 +37,37 @@
 }
 
 .icon-link {
-  color: #ffffff;
+  position: relative;
+  color: var(--bd-text);
   font-size: 1.25rem;
   line-height: 1;
   padding: 0.5rem;
   border-radius: var(--bd-radius);
+  text-decoration: none;
 }
 
 .icon-link:hover {
-  background: rgb(255 255 255 / 0.12);
+  background: var(--bd-bg);
+}
+
+.bell-badge {
+  position: absolute;
+  top: 0;
+  right: -0.1rem;
+  min-width: 1.15rem;
+  padding: 0 0.3rem;
+  border-radius: 999px;
+  background: var(--bd-primary);
+  color: #ffffff;
+  font-size: 0.7rem;
+  font-weight: 700;
+  line-height: 1.15rem;
+  text-align: center;
 }
 
 .user {
   font-size: 0.875rem;
-  color: rgb(255 255 255 / 0.85);
+  color: var(--bd-text-muted);
 }
 
 .body {
@@ -59,7 +77,7 @@
 }
 
 .sidebar {
-  width: 14rem;
+  width: 13.1rem;
   flex-direction: column;
   gap: 0.25rem;
   padding: 0.75rem;
@@ -71,10 +89,10 @@
   display: flex;
   align-items: center;
   gap: 0.6rem;
-  padding: 0.65rem 0.75rem;
+  padding: 0.7rem 0.75rem;
   border-radius: var(--bd-radius);
-  color: var(--bd-text);
-  font-weight: 500;
+  color: var(--bd-nav-text);
+  font-size: 0.9rem;
   text-decoration: none;
 }
 
@@ -83,15 +101,15 @@
 }
 
 .nav-link-item.active {
-  background: color-mix(in srgb, var(--bd-primary) 10%, white);
-  color: var(--bd-primary);
+  background: var(--bd-primary-tint);
+  color: var(--bd-primary-strong);
   font-weight: 600;
 }
 
 .content {
   flex: 1;
   min-width: 0;
-  padding: 1.25rem;
+  padding: 1.5rem;
 }
 
 .pills {
@@ -108,16 +126,17 @@
   padding: 0.4rem 0.9rem;
   border-radius: 999px;
   border: 1px solid var(--bd-border);
-  color: var(--bd-text);
+  color: var(--bd-nav-text);
   font-size: 0.875rem;
   text-decoration: none;
   white-space: nowrap;
 }
 
 .pill.active {
-  background: var(--bd-primary);
-  border-color: var(--bd-primary);
-  color: #ffffff;
+  background: var(--bd-primary-tint);
+  border-color: var(--bd-primary-tint);
+  color: var(--bd-primary-strong);
+  font-weight: 600;
 }
 
 .bottom-nav {
@@ -139,12 +158,12 @@
   min-height: 56px;
   padding: 0.4rem 0.25rem;
   font-size: 0.75rem;
-  color: var(--bd-text-muted);
+  color: var(--bd-nav-text);
   text-decoration: none;
 }
 
 .bottom-nav a.active {
-  color: var(--bd-primary);
+  color: var(--bd-primary-strong);
   font-weight: 600;
 }
 

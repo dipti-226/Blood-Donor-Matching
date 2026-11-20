@@ -64,18 +64,18 @@ export const GENDER_OPTIONS: Gender[] = Object.values(Gender);
 // Badge colour variant for every status and urgency value (see styles/utilities.css).
 const BADGE_VARIANT: Record<string, string> = {
   Pending: 'warning',
-  Open: 'primary',
+  Open: 'success',
   Verified: 'success',
   Accepted: 'success',
   Fulfilled: 'success',
   Active: 'success',
-  Rejected: 'error',
-  Declined: 'error',
+  Rejected: 'danger',
+  Declined: 'danger',
   Cancelled: 'neutral',
   Suspended: 'neutral',
   Normal: 'neutral',
   Urgent: 'warning',
-  Critical: 'accent',
+  Critical: 'danger',
 };
 
 export function badgeClass(value: string | null | undefined): string {

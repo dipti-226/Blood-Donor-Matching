@@ -1,8 +1,9 @@
-import { Component, OnInit, computed, inject } from '@angular/core';
+import { Component, OnDestroy, OnInit, computed, inject } from '@angular/core';
 import { RouterLink, RouterLinkActive, RouterOutlet } from '@angular/router';
 import { HospitalContextService } from '../../core/auth/hospital-context.service';
 import { SessionService } from '../../core/auth/session.service';
 import { Roles } from '../../core/models/enums';
+import { UnreadCountService } from '../../core/notifications/unread-count.service';
 import { ToastService } from '../../core/ui/toast.service';
 import { NAV_ITEMS } from '../nav-items';
 
@@ -12,8 +13,9 @@ import { NAV_ITEMS } from '../nav-items';
   templateUrl: './app-shell.html',
   styleUrl: './app-shell.css',
 })
-export class AppShell implements OnInit {
+export class AppShell implements OnInit, OnDestroy {
   protected readonly session = inject(SessionService);
+  protected readonly unread = inject(UnreadCountService);
   private readonly hospitalContext = inject(HospitalContextService);
   private readonly toast = inject(ToastService);
 
@@ -39,6 +41,14 @@ export class AppShell implements OnInit {
         error: () => this.toast.error('We could not load your hospital details.'),
       });
     }
+
+    if (this.showBell()) {
+      this.unread.start();
+    }
+  }
+
+  ngOnDestroy(): void {
+    this.unread.stop();
   }
 
   protected signOut(): void {

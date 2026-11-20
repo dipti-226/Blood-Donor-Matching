@@ -85,12 +85,9 @@ export const routes: Routes = [
       {
         path: 'notifications',
         canActivate: [roleGuard],
-        loadComponent: statusPage,
-        data: {
-          roles: [Roles.Donor, Roles.HospitalAdmin, Roles.HospitalStaff],
-          title: 'Notifications',
-          message: SOON,
-        },
+        data: { roles: [Roles.Donor, Roles.HospitalAdmin, Roles.HospitalStaff] },
+        loadComponent: () =>
+          import('./features/notifications/notifications/notifications').then((m) => m.Notifications),
       },
     ],
   },

@@ -1,4 +1,4 @@
-/* Status badges: solid colour with white text. Every pairing is 4.78:1 or higher. */
+/* Status badges: a light tint with dark text, as in the reference screens (all above 6.6:1). */
 .bd-badge {
   display: inline-flex;
   align-items: center;
@@ -8,30 +8,26 @@
   font-size: 0.75rem;
   font-weight: 600;
   line-height: 1.4;
-  color: #ffffff;
-  background: var(--bd-text-muted);
-}
-
-.bd-badge--primary {
-  background: var(--bd-primary);
+  color: var(--bd-neutral);
+  background: var(--bd-neutral-tint);
 }
 
 .bd-badge--success {
-  background: var(--bd-success);
+  color: var(--bd-success);
+  background: var(--bd-success-tint);
 }
 
 .bd-badge--warning {
-  background: var(--bd-warning);
+  color: var(--bd-warning);
+  background: var(--bd-warning-tint);
 }
 
-.bd-badge--error {
-  background: var(--bd-error);
-}
-
-.bd-badge--accent {
-  background: var(--bd-accent);
+.bd-badge--danger {
+  color: var(--bd-danger);
+  background: var(--bd-danger-tint);
 }
 
 .bd-badge--neutral {
-  background: var(--bd-text-muted);
+  color: var(--bd-neutral);
+  background: var(--bd-neutral-tint);
 }

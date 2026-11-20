@@ -1,0 +1,8 @@
+<div class="empty">
+  <i class="bi" [class]="icon()" aria-hidden="true"></i>
+  <h2 class="h6">{{ title() }}</h2>
+  @if (message()) {
+    <p class="text-secondary mb-2">{{ message() }}</p>
+  }
+  <ng-content />
+</div>

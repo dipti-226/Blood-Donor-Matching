@@ -1,0 +1,80 @@
+<app-page-header title="Notifications" subtitle="Updates about your requests.">
+  <button
+    type="button"
+    class="btn btn-outline-primary btn-sm"
+    [disabled]="!hasUnread() || busy()"
+    (click)="markAllRead()"
+  >
+    Mark all as read
+  </button>
+</app-page-header>
+
+<div class="btn-group mb-3" role="group" aria-label="Filter notifications">
+  <button
+    type="button"
+    class="btn btn-sm"
+    [class.btn-primary]="!unreadOnly()"
+    [class.btn-outline-primary]="unreadOnly()"
+    (click)="setFilter(false)"
+  >
+    All
+  </button>
+  <button
+    type="button"
+    class="btn btn-sm"
+    [class.btn-primary]="unreadOnly()"
+    [class.btn-outline-primary]="!unreadOnly()"
+    (click)="setFilter(true)"
+  >
+    Unread
+  </button>
+</div>
+
+@switch (state().status) {
+  @case ('loading') {
+    <app-loading-state label="Loading notifications..." />
+  }
+  @case ('error') {
+    <app-error-banner [message]="errorText()" (retry)="load()" />
+  }
+  @default {
+    @if (items().length === 0) {
+      <div class="card">
+        <app-empty-state
+          icon="bi-bell"
+          title="No notifications"
+          [message]="unreadOnly() ? 'You have no unread notifications.' : 'Updates about your requests will appear here.'"
+        />
+      </div>
+    } @else {
+      <ul class="list-group">
+        @for (item of items(); track item.id) {
+          <li class="list-group-item notification" [class.unread]="!item.isRead">
+            <i class="bi icon" [class]="iconFor(item.type)" aria-hidden="true"></i>
+
+            <div class="body">
+              <div>
+                @if (!item.isRead) {
+                  <span class="bd-badge bd-badge--danger me-2">New</span>
+                }
+                {{ item.message }}
+              </div>
+              <div class="meta">{{ item.createdAt | relativeTime }}</div>
+            </div>
+
+            <div class="actions">
+              @if (viewLink(item); as link) {
+                <a class="btn btn-sm btn-outline-primary" [routerLink]="link">View</a>
+              }
+              @if (!item.isRead) {
+                <button type="button" class="btn btn-sm btn-outline-secondary" (click)="markRead(item)">
+                  Mark as read
+                </button>
+              }
+            </div>
+          </li>
+        }
+      </ul>
+    }
+  }
+}

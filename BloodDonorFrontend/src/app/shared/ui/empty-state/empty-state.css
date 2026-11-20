@@ -1,0 +1,11 @@
+.empty {
+  padding: 2.5rem 1rem;
+  text-align: center;
+}
+
+.empty i {
+  display: block;
+  margin-bottom: 0.5rem;
+  font-size: 2rem;
+  color: var(--bd-text-muted);
+}

@@ -1,0 +1,133 @@
+<app-page-header title="New hospital" subtitle="Register a hospital. It starts as Pending until you activate it." />
+
+<div class="card narrow">
+  <div class="card-body p-4">
+    @if (error()) {
+      <div class="alert alert-danger" role="alert">{{ error() }}</div>
+    }
+
+    <form [formGroup]="form" (ngSubmit)="submit()" novalidate>
+      <app-form-field label="Hospital name" controlId="n-name" [error]="fieldError('name')">
+        <input
+          id="n-name"
+          type="text"
+          class="form-control"
+          formControlName="name"
+          maxlength="200"
+          [class.is-invalid]="!!fieldError('name')"
+        />
+      </app-form-field>
+
+      <app-form-field
+        label="Registration number"
+        controlId="n-reg"
+        hint="Must be unique. It cannot be changed later."
+        [error]="fieldError('registrationNumber')"
+      >
+        <input
+          id="n-reg"
+          type="text"
+          class="form-control"
+          formControlName="registrationNumber"
+          maxlength="100"
+          [class.is-invalid]="!!fieldError('registrationNumber')"
+        />
+      </app-form-field>
+
+      <app-form-field label="Address" controlId="n-address" [error]="fieldError('address')">
+        <textarea
+          id="n-address"
+          class="form-control"
+          rows="2"
+          formControlName="address"
+          maxlength="500"
+          [class.is-invalid]="!!fieldError('address')"
+        ></textarea>
+      </app-form-field>
+
+      <div class="row">
+        <div class="col-12 col-md-4">
+          <app-form-field
+            label="City"
+            controlId="n-city"
+            hint="Donors are matched by this city."
+            [error]="fieldError('city')"
+          >
+            <input
+              id="n-city"
+              type="text"
+              class="form-control"
+              formControlName="city"
+              maxlength="100"
+              [class.is-invalid]="!!fieldError('city')"
+            />
+          </app-form-field>
+        </div>
+        <div class="col-12 col-md-4">
+          <app-form-field label="Area" controlId="n-area" [error]="fieldError('area')">
+            <input
+              id="n-area"
+              type="text"
+              class="form-control"
+              formControlName="area"
+              maxlength="100"
+              [class.is-invalid]="!!fieldError('area')"
+            />
+          </app-form-field>
+        </div>
+        <div class="col-12 col-md-4">
+          <app-form-field label="Pincode" controlId="n-pincode" [error]="fieldError('pincode')">
+            <input
+              id="n-pincode"
+              type="text"
+              inputmode="numeric"
+              class="form-control"
+              formControlName="pincode"
+              maxlength="10"
+              [class.is-invalid]="!!fieldError('pincode')"
+            />
+          </app-form-field>
+        </div>
+      </div>
+
+      <div class="row">
+        <div class="col-12 col-md-6">
+          <app-form-field label="Contact number" controlId="n-phone" [error]="fieldError('contactNumber')">
+            <input
+              id="n-phone"
+              type="tel"
+              inputmode="tel"
+              class="form-control"
+              formControlName="contactNumber"
+              maxlength="20"
+              [class.is-invalid]="!!fieldError('contactNumber')"
+            />
+          </app-form-field>
+        </div>
+        <div class="col-12 col-md-6">
+          <app-form-field label="Email" controlId="n-email" [error]="fieldError('email')">
+            <input
+              id="n-email"
+              type="email"
+              class="form-control"
+              formControlName="email"
+              maxlength="256"
+              [class.is-invalid]="!!fieldError('email')"
+            />
+          </app-form-field>
+        </div>
+      </div>
+
+      <div class="actions">
+        <a class="btn btn-outline-secondary" routerLink="/admin/hospitals">Cancel</a>
+        <button type="submit" class="btn btn-primary" [disabled]="busy()">
+          @if (busy()) {
+            <span class="spinner-border spinner-border-sm me-2" aria-hidden="true"></span>Registering...
+          } @else {
+            Register hospital
+          }
+        </button>
+      </div>
+    </form>
+  </div>
+</div>

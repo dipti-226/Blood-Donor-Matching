@@ -1,0 +1,41 @@
+<app-modal-dialog title="Cancel this blood request" [dismissible]="!busy()" (closed)="dismissed.emit()">
+  <p>
+    Donors who have not answered, or who accepted, will be told the request is closed. This cannot be undone.
+  </p>
+
+  @if (error()) {
+    <div class="alert alert-danger" role="alert">{{ error() }}</div>
+  }
+
+  <form id="cancel-request-form" [formGroup]="form" (ngSubmit)="submit()" novalidate>
+    <app-form-field
+      label="Reason"
+      controlId="cancel-reason"
+      hint="Up to 1000 characters. Kept on the request for your records."
+      [error]="fieldError()"
+    >
+      <textarea
+        id="cancel-reason"
+        class="form-control"
+        rows="4"
+        maxlength="1000"
+        formControlName="reason"
+        autofocus
+        [class.is-invalid]="!!fieldError()"
+      ></textarea>
+    </app-form-field>
+  </form>
+
+  <ng-container ngProjectAs="[dialog-footer]">
+    <button type="button" class="btn btn-outline-secondary" [disabled]="busy()" (click)="dismissed.emit()">
+      Keep request
+    </button>
+    <button type="submit" form="cancel-request-form" class="btn btn-danger" [disabled]="busy()">
+      @if (busy()) {
+        <span class="spinner-border spinner-border-sm me-2" aria-hidden="true"></span>Cancelling...
+      } @else {
+        Cancel request
+      }
+    </button>
+  </ng-container>
+</app-modal-dialog>

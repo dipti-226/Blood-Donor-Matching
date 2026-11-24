@@ -1,0 +1,46 @@
+@if (sorted().length === 0) {
+  <p class="text-secondary mb-0">No donors have been asked yet.</p>
+} @else {
+  <div class="table-responsive">
+    <table class="table align-middle mb-0">
+      <thead>
+        <tr>
+          <th scope="col">Donor</th>
+          <th scope="col">Status</th>
+          <th scope="col">Asked</th>
+          <th scope="col">Answered</th>
+          <th scope="col"><span class="visually-hidden">Actions</span></th>
+        </tr>
+      </thead>
+      <tbody>
+        @for (item of sorted(); track item.id) {
+          <tr [class.accepted]="item.status === Accepted">
+            <td>
+              <div class="donor">
+                <app-blood-group-chip [group]="item.verifiedBloodGroup" />
+                <span class="text-secondary small">{{ item.area }}, {{ item.city }}</span>
+              </div>
+            </td>
+            <td><app-status-badge [value]="item.status" /></td>
+            <td class="text-nowrap">{{ item.createdAt | relativeTime }}</td>
+            <td class="text-nowrap">{{ item.respondedAt ? (item.respondedAt | relativeTime) : '-' }}</td>
+            <td class="text-end text-nowrap">
+              @if (canAct()) {
+                @if (item.status === Accepted) {
+                  <button type="button" class="btn btn-sm btn-primary me-1" (click)="viewContact.emit(item)">
+                    View contact
+                  </button>
+                }
+                @if (item.status === Accepted || item.status === Pending) {
+                  <button type="button" class="btn btn-sm btn-outline-danger" (click)="cancel.emit(item)">
+                    Cancel
+                  </button>
+                }
+              }
+            </td>
+          </tr>
+        }
+      </tbody>
+    </table>
+  </div>
+}

@@ -68,6 +68,7 @@ builder.Services.AddScoped<IBloodGroupVerificationQueryService, BloodGroupVerifi
 builder.Services.AddScoped<IResubmitBloodGroupService, ResubmitBloodGroupService>();
 builder.Services.AddScoped<ICreateHospitalService, CreateHospitalService>();
 builder.Services.AddScoped<IHospitalQueryService, HospitalQueryService>();
+builder.Services.AddScoped<IHospitalAdminQueryService, HospitalAdminQueryService>();
 builder.Services.AddScoped<IUpdateHospitalStatusService, UpdateHospitalStatusService>();
 builder.Services.AddScoped<IUpdateHospitalService, UpdateHospitalService>();
 builder.Services.AddScoped<ICreateHospitalAdminService, CreateHospitalAdminService>();

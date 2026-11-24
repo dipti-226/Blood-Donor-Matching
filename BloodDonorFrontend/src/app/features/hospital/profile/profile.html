@@ -1,0 +1,170 @@
+<app-page-header
+  title="Hospital profile"
+  [subtitle]="canEdit() ? 'Keep your hospital details up to date.' : 'Your hospital details.'"
+/>
+
+@switch (state().status) {
+  @case ('loading') {
+    <app-loading-state label="Loading hospital details..." />
+  }
+  @case ('error') {
+    <app-error-banner [message]="errorText()" (retry)="load()" />
+  }
+  @default {
+    @if (hospital(); as h) {
+      <div class="row g-3">
+        <div class="col-12 col-lg-8">
+          <div class="card">
+            <div class="card-body p-4">
+              @if (canEdit()) {
+                @if (formError()) {
+                  <div class="alert alert-danger" role="alert">{{ formError() }}</div>
+                }
+
+                <form [formGroup]="form" (ngSubmit)="submit()" novalidate>
+                  <app-form-field label="Hospital name" controlId="h-name" [error]="fieldError('name')">
+                    <input
+                      id="h-name"
+                      type="text"
+                      class="form-control"
+                      formControlName="name"
+                      maxlength="200"
+                      [class.is-invalid]="!!fieldError('name')"
+                    />
+                  </app-form-field>
+
+                  <app-form-field label="Address" controlId="h-address" [error]="fieldError('address')">
+                    <textarea
+                      id="h-address"
+                      class="form-control"
+                      rows="2"
+                      formControlName="address"
+                      maxlength="500"
+                      [class.is-invalid]="!!fieldError('address')"
+                    ></textarea>
+                  </app-form-field>
+
+                  <div class="row">
+                    <div class="col-12 col-md-4">
+                      <app-form-field
+                        label="City"
+                        controlId="h-city"
+                        hint="Donors are matched to your requests by this city."
+                        [error]="fieldError('city')"
+                      >
+                        <input
+                          id="h-city"
+                          type="text"
+                          class="form-control"
+                          formControlName="city"
+                          maxlength="100"
+                          [class.is-invalid]="!!fieldError('city')"
+                        />
+                      </app-form-field>
+                    </div>
+                    <div class="col-12 col-md-4">
+                      <app-form-field label="Area" controlId="h-area" [error]="fieldError('area')">
+                        <input
+                          id="h-area"
+                          type="text"
+                          class="form-control"
+                          formControlName="area"
+                          maxlength="100"
+                          [class.is-invalid]="!!fieldError('area')"
+                        />
+                      </app-form-field>
+                    </div>
+                    <div class="col-12 col-md-4">
+                      <app-form-field label="Pincode" controlId="h-pincode" [error]="fieldError('pincode')">
+                        <input
+                          id="h-pincode"
+                          type="text"
+                          inputmode="numeric"
+                          class="form-control"
+                          formControlName="pincode"
+                          maxlength="10"
+                          [class.is-invalid]="!!fieldError('pincode')"
+                        />
+                      </app-form-field>
+                    </div>
+                  </div>
+
+                  <div class="row">
+                    <div class="col-12 col-md-6">
+                      <app-form-field label="Contact number" controlId="h-phone" [error]="fieldError('contactNumber')">
+                        <input
+                          id="h-phone"
+                          type="tel"
+                          inputmode="tel"
+                          class="form-control"
+                          formControlName="contactNumber"
+                          maxlength="20"
+                          [class.is-invalid]="!!fieldError('contactNumber')"
+                        />
+                      </app-form-field>
+                    </div>
+                    <div class="col-12 col-md-6">
+                      <app-form-field label="Email" controlId="h-email" [error]="fieldError('email')">
+                        <input
+                          id="h-email"
+                          type="email"
+                          class="form-control"
+                          formControlName="email"
+                          maxlength="256"
+                          [class.is-invalid]="!!fieldError('email')"
+                        />
+                      </app-form-field>
+                    </div>
+                  </div>
+
+                  <div class="d-grid d-sm-flex justify-content-sm-end">
+                    <button type="submit" class="btn btn-primary" [disabled]="busy() || !form.dirty">
+                      @if (busy()) {
+                        <span class="spinner-border spinner-border-sm me-2" aria-hidden="true"></span>Saving...
+                      } @else {
+                        Save changes
+                      }
+                    </button>
+                  </div>
+                </form>
+              } @else {
+                <dl class="details">
+                  <dt>Hospital name</dt>
+                  <dd>{{ h.name }}</dd>
+                  <dt>Address</dt>
+                  <dd>{{ h.address }}, {{ h.area }}, {{ h.city }} {{ h.pincode }}</dd>
+                  <dt>Contact number</dt>
+                  <dd>{{ h.contactNumber }}</dd>
+                  <dt>Email</dt>
+                  <dd>{{ h.email }}</dd>
+                </dl>
+                <p class="text-secondary small mb-0">Only a hospital admin can change these details.</p>
+              }
+            </div>
+          </div>
+        </div>
+
+        <div class="col-12 col-lg-4">
+          <div class="card">
+            <div class="card-body">
+              <h2 class="h6">Registration</h2>
+              <dl class="details mb-0">
+                <dt>Status</dt>
+                <dd><app-status-badge [value]="h.status" /></dd>
+                <dt>Registration number</dt>
+                <dd>{{ h.registrationNumber }}</dd>
+                <dt>Registered</dt>
+                <dd>{{ formatDateTime(h.createdAt) }}</dd>
+                <dt>Last updated</dt>
+                <dd>{{ formatDateTime(h.updatedAt) }}</dd>
+              </dl>
+              <p class="text-secondary small mt-3 mb-0">
+                The registration number and status are managed by a system administrator.
+              </p>
+            </div>
+          </div>
+        </div>
+      </div>
+    }
+  }
+}

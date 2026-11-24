@@ -1,0 +1,93 @@
+<app-page-header title="Hospitals" subtitle="Every hospital registered on the platform.">
+  <a class="btn btn-primary btn-sm" routerLink="/admin/hospitals/new">
+    <i class="bi bi-plus-lg me-1" aria-hidden="true"></i>New hospital
+  </a>
+</app-page-header>
+
+@switch (state().status) {
+  @case ('loading') {
+    <app-loading-state label="Loading hospitals..." />
+  }
+  @case ('error') {
+    <app-error-banner [message]="errorText()" (retry)="load()" />
+  }
+  @default {
+    @if (all().length === 0) {
+      <div class="card">
+        <app-empty-state
+          icon="bi-hospital"
+          title="No hospitals yet"
+          message="Register the first hospital, then activate it and create its admin."
+        >
+          <a class="btn btn-sm btn-primary" routerLink="/admin/hospitals/new">New hospital</a>
+        </app-empty-state>
+      </div>
+    } @else {
+      <div class="toolbar">
+        <div class="btn-group" role="group" aria-label="Filter by status">
+          @for (option of filters; track option) {
+            <button
+              type="button"
+              class="btn btn-sm"
+              [class.btn-primary]="filter() === option"
+              [class.btn-outline-primary]="filter() !== option"
+              [attr.aria-pressed]="filter() === option"
+              (click)="filter.set(option)"
+            >
+              {{ option }} ({{ counts()[option] }})
+            </button>
+          }
+        </div>
+
+        <input
+          type="search"
+          class="form-control search"
+          placeholder="Search name, registration number or city"
+          aria-label="Search hospitals"
+          [value]="query()"
+          (input)="onQuery($event)"
+        />
+      </div>
+
+      @if (visible().length === 0) {
+        <div class="card">
+          <app-empty-state icon="bi-search" title="No hospitals match" message="Try another status or search term." />
+        </div>
+      } @else {
+        <div class="card">
+          <div class="table-responsive">
+            <table class="table table-hover align-middle mb-0">
+              <thead>
+                <tr>
+                  <th scope="col">Hospital</th>
+                  <th scope="col">Location</th>
+                  <th scope="col">Status</th>
+                  <th scope="col">Registered</th>
+                  <th scope="col"><span class="visually-hidden">Actions</span></th>
+                </tr>
+              </thead>
+              <tbody>
+                @for (hospital of visible(); track hospital.id) {
+                  <tr>
+                    <td>
+                      <div class="fw-semibold">{{ hospital.name }}</div>
+                      <div class="text-secondary small">{{ hospital.registrationNumber }}</div>
+                    </td>
+                    <td>{{ hospital.area }}, {{ hospital.city }}</td>
+                    <td><app-status-badge [value]="hospital.status" /></td>
+                    <td class="text-nowrap">{{ formatDateTime(hospital.createdAt) }}</td>
+                    <td class="text-end">
+                      <a class="btn btn-sm btn-outline-primary" [routerLink]="['/admin/hospitals', hospital.id]">
+                        Open
+                      </a>
+                    </td>
+                  </tr>
+                }
+              </tbody>
+            </table>
+          </div>
+        </div>
+      }
+    }
+  }
+}

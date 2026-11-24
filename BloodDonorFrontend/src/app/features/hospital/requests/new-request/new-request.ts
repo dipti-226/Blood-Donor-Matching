@@ -76,10 +76,10 @@ export class NewRequest {
         urgency: raw.urgency,
       })
       .subscribe({
-        next: () => {
+                next: (created) => {
           this.busy.set(false);
           this.toast.success('Blood request created.');
-          void this.router.navigate(['/hospital/requests']);
+          void this.router.navigate(['/hospital/requests', created.id]);
         },
         error: (err: unknown) => this.onError(err),
       });

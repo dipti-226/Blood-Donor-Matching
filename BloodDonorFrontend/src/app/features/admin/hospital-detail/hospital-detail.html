@@ -1,0 +1,150 @@
+@switch (state().status) {
+  @case ('loading') {
+    <app-page-header title="Hospital" />
+    <app-loading-state label="Loading hospital..." />
+  }
+  @case ('error') {
+    <app-page-header title="Hospital">
+      <a class="btn btn-outline-secondary btn-sm" routerLink="/admin/hospitals">All hospitals</a>
+    </app-page-header>
+
+    @if (notFound()) {
+      <div class="card">
+        <app-empty-state icon="bi-question-circle" title="Hospital not found" message="It may have been removed.">
+          <a class="btn btn-sm btn-primary" routerLink="/admin/hospitals">Back to hospitals</a>
+        </app-empty-state>
+      </div>
+    } @else {
+      <app-error-banner [message]="errorText()" (retry)="load()" />
+    }
+  }
+  @default {
+    @if (hospital(); as h) {
+      <app-page-header [title]="h.name" [subtitle]="h.registrationNumber">
+        <a class="btn btn-outline-secondary btn-sm" routerLink="/admin/hospitals">All hospitals</a>
+        @if (action(); as a) {
+          <button
+            type="button"
+            class="btn btn-sm"
+            [class.btn-danger]="a.danger"
+            [class.btn-success]="!a.danger"
+            (click)="statusOpen.set(true)"
+          >
+            {{ a.label }}
+          </button>
+        }
+      </app-page-header>
+
+      <div class="row g-3 mb-3">
+        <div class="col-12 col-lg-8">
+          <div class="card h-100">
+            <div class="card-body">
+              <h2 class="h6 mb-3">Details</h2>
+              <dl class="details">
+                <dt>Address</dt>
+                <dd>{{ h.address }}, {{ h.area }}, {{ h.city }} {{ h.pincode }}</dd>
+                <dt>Contact number</dt>
+                <dd>{{ h.contactNumber }}</dd>
+                <dt>Email</dt>
+                <dd>{{ h.email }}</dd>
+              </dl>
+              <p class="text-secondary small mb-0">
+                Only the hospital's own admin can edit these details.
+              </p>
+            </div>
+          </div>
+        </div>
+
+        <div class="col-12 col-lg-4">
+          <div class="card h-100">
+            <div class="card-body">
+              <h2 class="h6 mb-3">Status</h2>
+              <dl class="details mb-0">
+                <dt>Current status</dt>
+                <dd><app-status-badge [value]="h.status" /></dd>
+                <dt>Registered</dt>
+                <dd>{{ formatDateTime(h.createdAt) }}</dd>
+                <dt>Last updated</dt>
+                <dd>{{ formatDateTime(h.updatedAt) }}</dd>
+              </dl>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div class="card">
+        <div class="card-body">
+          <div class="head">
+            <h2 class="h6 mb-0">Hospital admins</h2>
+            @if (admins().status === 'ready') {
+              <button type="button" class="btn btn-primary btn-sm" (click)="addOpen.set(true)">
+                <i class="bi bi-person-plus me-1" aria-hidden="true"></i>Add admin
+              </button>
+            }
+          </div>
+
+          @switch (admins().status) {
+            @case ('loading') {
+              <app-loading-state label="Loading admins..." />
+            }
+            @case ('error') {
+              <app-error-banner [message]="adminError()" (retry)="loadAdmins()" />
+            }
+            @default {
+              @if (adminList().length === 0) {
+                <div class="alert alert-warning mb-0" role="status">
+                  <i class="bi bi-exclamation-triangle me-1" aria-hidden="true"></i>
+                  This hospital has no admin yet, so nobody can sign in for it. Add one.
+                </div>
+              } @else {
+                <div class="table-responsive">
+                  <table class="table align-middle mb-0">
+                    <thead>
+                      <tr>
+                        <th scope="col">Email</th>
+                        <th scope="col">Added</th>
+                      </tr>
+                    </thead>
+                    <tbody>
+                      @for (admin of adminList(); track admin.hospitalUserId) {
+                        <tr>
+                          <td class="email">{{ admin.email }}</td>
+                          <td class="text-nowrap">{{ formatDateTime(admin.createdAt) }}</td>
+                        </tr>
+                      }
+                    </tbody>
+                  </table>
+                </div>
+              }
+
+              <p class="text-secondary small mt-3 mb-0">
+                Hospital admins create their own staff. Removing an admin is not available yet.
+              </p>
+            }
+          }
+        </div>
+      </div>
+
+      @if (statusOpen() && action(); as a) {
+        <app-confirm-dialog
+          [title]="a.title"
+          [message]="a.message"
+          [confirmLabel]="a.label"
+          [danger]="a.danger"
+          [busy]="changing()"
+          (confirmed)="confirmStatus()"
+          (cancelled)="closeStatus()"
+        />
+      }
+
+      @if (addOpen()) {
+        <app-add-admin-dialog
+          [hospitalId]="h.id"
+          [hospitalName]="h.name"
+          (created)="onAdminCreated()"
+          (dismissed)="addOpen.set(false)"
+        />
+      }
+    }
+  }
+}

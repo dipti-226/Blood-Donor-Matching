@@ -1,0 +1,63 @@
+<app-page-header title="Staff" subtitle="People who can work on behalf of your hospital.">
+  @if (view()) {
+    <button type="button" class="btn btn-primary btn-sm" (click)="addOpen.set(true)">
+      <i class="bi bi-person-plus me-1" aria-hidden="true"></i>Add staff member
+    </button>
+  }
+</app-page-header>
+
+@switch (state().status) {
+  @case ('loading') {
+    <app-loading-state label="Loading staff..." />
+  }
+  @case ('error') {
+    <app-error-banner [message]="errorText()" (retry)="load()" />
+  }
+  @default {
+    @if (view(); as v) {
+      @if (v.members.length === 0) {
+        <div class="card">
+          <app-empty-state
+            icon="bi-people"
+            title="No staff yet"
+            message="Add staff members so your team can raise requests and review blood groups."
+          >
+            <button type="button" class="btn btn-sm btn-primary" (click)="addOpen.set(true)">Add staff member</button>
+          </app-empty-state>
+        </div>
+      } @else {
+        <div class="card">
+          <div class="table-responsive">
+            <table class="table align-middle mb-0">
+              <thead>
+                <tr>
+                  <th scope="col">Email</th>
+                  <th scope="col">Added</th>
+                </tr>
+              </thead>
+              <tbody>
+                @for (member of v.members; track member.hospitalUserId) {
+                  <tr>
+                    <td class="email">{{ member.email }}</td>
+                    <td class="text-nowrap">{{ formatDateTime(member.createdAt) }}</td>
+                  </tr>
+                }
+              </tbody>
+            </table>
+          </div>
+        </div>
+      }
+
+      <p class="text-secondary small mt-3 mb-0">
+        <i class="bi bi-info-circle me-1" aria-hidden="true"></i>
+        Deactivating a staff account is not available yet.
+      </p>
+    }
+  }
+}
+
+@if (addOpen()) {
+  @if (view(); as v) {
+    <app-add-staff-dialog [hospitalId]="v.hospitalId" (created)="onCreated()" (dismissed)="addOpen.set(false)" />
+  }
+}

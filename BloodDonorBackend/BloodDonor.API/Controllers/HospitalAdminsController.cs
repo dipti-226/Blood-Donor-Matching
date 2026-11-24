@@ -11,10 +11,32 @@ namespace BloodDonor.API.Controllers
     public class HospitalAdminsController : ControllerBase
     {
         private readonly ICreateHospitalAdminService _createHospitalAdminService;
+        private readonly IHospitalAdminQueryService _hospitalAdminQueryService;
 
-        public HospitalAdminsController(ICreateHospitalAdminService createHospitalAdminService)
+        public HospitalAdminsController(
+            ICreateHospitalAdminService createHospitalAdminService,
+            IHospitalAdminQueryService hospitalAdminQueryService)
         {
             _createHospitalAdminService = createHospitalAdminService;
+            _hospitalAdminQueryService = hospitalAdminQueryService;
+        }
+
+        [HttpGet]
+        public async Task<IActionResult> GetHospitalAdmins(Guid hospitalId)
+        {
+            var result = await _hospitalAdminQueryService.GetAdminsAsync(hospitalId);
+
+            if (result.Succeeded)
+            {
+                return Ok(result.Response);
+            }
+
+            return NotFound(new ProblemDetails
+            {
+                Status = StatusCodes.Status404NotFound,
+                Title = "Hospital admins not found.",
+                Detail = result.ErrorMessage
+            });
         }
 
         [HttpPost]

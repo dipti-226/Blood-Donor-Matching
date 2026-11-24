@@ -1,0 +1,48 @@
+<app-modal-dialog title="Donor contact details" [dismissible]="!busy()" (closed)="closed.emit()">
+  <div class="who">
+    <app-blood-group-chip [group]="item().verifiedBloodGroup" />
+    <span class="text-secondary">{{ item().area }}, {{ item().city }}</span>
+  </div>
+
+  @if (contact(); as c) {
+    <dl class="details">
+      <dt>Name</dt>
+      <dd>{{ c.fullName }}</dd>
+      <dt>Contact number</dt>
+      <dd class="number">{{ c.contactNumber }}</dd>
+    </dl>
+    <p class="text-secondary small mb-0">
+      This view was recorded. The details disappear when you close this window.
+    </p>
+  } @else {
+    <div class="alert alert-warning" role="note">
+      <i class="bi bi-shield-lock me-1" aria-hidden="true"></i>
+      The donor shared this number only for this request. Each time you view it, it is recorded with your account.
+      Only view it when you are ready to contact the donor.
+    </div>
+
+    @if (error()) {
+      <div class="alert alert-danger" role="alert">{{ error() }}</div>
+    }
+  }
+
+  <ng-container ngProjectAs="[dialog-footer]">
+    @if (contact(); as c) {
+      <a class="btn btn-outline-primary" [href]="'tel:' + c.contactNumber">
+        <i class="bi bi-telephone me-1" aria-hidden="true"></i>Call
+      </a>
+      <button type="button" class="btn btn-primary" (click)="closed.emit()">Close</button>
+    } @else {
+      <button type="button" class="btn btn-outline-secondary" [disabled]="busy()" (click)="closed.emit()">
+        Cancel
+      </button>
+      <button type="button" class="btn btn-primary" [disabled]="busy()" (click)="reveal()">
+        @if (busy()) {
+          <span class="spinner-border spinner-border-sm me-2" aria-hidden="true"></span>Loading...
+        } @else {
+          Show contact details
+        }
+      </button>
+    }
+  </ng-container>
+</app-modal-dialog>

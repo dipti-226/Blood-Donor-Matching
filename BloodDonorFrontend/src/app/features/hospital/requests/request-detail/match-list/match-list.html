@@ -1,0 +1,100 @@
+@let list = matchList();
+
+<p class="text-secondary small">{{ list.notice }}</p>
+
+@if (list.matches.length === 0) {
+  <app-empty-state
+    icon="bi-people"
+    title="No matching donors right now"
+    message="Donors must have a verified blood group, be available, live in your hospital's city and be compatible."
+  />
+} @else {
+  @if (error()) {
+    <div class="alert alert-danger" role="alert">{{ error() }}</div>
+  }
+
+  @if (atLimit()) {
+    <div class="alert alert-warning" role="status">
+      This request has reached the limit of 100 donor requests, so no more donors can be asked.
+    </div>
+  }
+
+  <div class="toolbar">
+    <span class="text-secondary small">
+      Showing {{ list.matches.length }}{{ list.totalCount > list.matches.length ? ' of ' + list.totalCount : '' }}
+      · {{ available().length }} not asked yet
+    </span>
+    <div class="buttons">
+      <button
+        type="button"
+        class="btn btn-sm btn-outline-secondary"
+        [disabled]="busy() || available().length === 0 || maxSelectable() === 0"
+        (click)="selectFirst()"
+      >
+        Select up to {{ maxSelectable() }}
+      </button>
+      <button
+        type="button"
+        class="btn btn-sm btn-outline-secondary"
+        [disabled]="busy() || selected().size === 0"
+        (click)="clear()"
+      >
+        Clear
+      </button>
+    </div>
+  </div>
+
+  <div class="table-responsive">
+    <table class="table align-middle mb-0">
+      <thead>
+        <tr>
+          <th scope="col"><span class="visually-hidden">Select</span></th>
+          <th scope="col">Blood group</th>
+          <th scope="col">Match</th>
+          <th scope="col">Area</th>
+          <th scope="col">State</th>
+        </tr>
+      </thead>
+      <tbody>
+        @for (match of list.matches; track match.donorReference; let i = $index) {
+          <tr [class.asked]="isAsked(match.donorReference)">
+            <td>
+              <input
+                type="checkbox"
+                class="form-check-input"
+                [id]="'match-' + i"
+                [checked]="isSelected(match.donorReference)"
+                [disabled]="isDisabled(match.donorReference)"
+                (change)="toggle(match.donorReference)"
+              />
+              <label class="visually-hidden" [attr.for]="'match-' + i">
+                Select donor {{ i + 1 }} in {{ match.area }}
+              </label>
+            </td>
+            <td><app-blood-group-chip [group]="match.verifiedBloodGroup" /></td>
+            <td>{{ match.isExactBloodGroupMatch ? 'Exact' : 'Compatible' }}</td>
+            <td>{{ match.area }}, {{ match.city }}</td>
+            <td>
+              @if (isAsked(match.donorReference)) {
+                <span class="text-secondary">Already asked</span>
+              } @else {
+                <span>Available</span>
+              }
+            </td>
+          </tr>
+        }
+      </tbody>
+    </table>
+  </div>
+
+  <div class="send">
+    <span aria-live="polite">{{ selected().size }} selected</span>
+    <button type="button" class="btn btn-primary" [disabled]="busy() || selected().size === 0" (click)="send()">
+      @if (busy()) {
+        <span class="spinner-border spinner-border-sm me-2" aria-hidden="true"></span>Sending...
+      } @else {
+        Ask {{ selected().size === 1 ? 'this donor' : 'selected donors' }} to help
+      }
+    </button>
+  </div>
+}

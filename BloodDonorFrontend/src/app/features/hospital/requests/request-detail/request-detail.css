@@ -1,0 +1,15 @@
+.summary {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 0.6rem;
+}
+
+.need {
+  font-size: 1.1rem;
+  font-weight: 600;
+}
+
+.card.critical {
+  border-left: 4px solid var(--bd-danger);
+}

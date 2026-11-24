@@ -1,0 +1,158 @@
+@switch (request().status) {
+  @case ('loading') {
+    <app-page-header title="Blood request" />
+    <app-loading-state label="Loading blood request..." />
+  }
+  @case ('error') {
+    <app-page-header title="Blood request">
+      <a class="btn btn-outline-secondary btn-sm" routerLink="/hospital/requests">All requests</a>
+    </app-page-header>
+
+    @if (notFound()) {
+      <div class="card">
+        <app-empty-state
+          icon="bi-question-circle"
+          title="Blood request not found"
+          message="It may belong to another hospital or no longer exist."
+        >
+          <a class="btn btn-sm btn-primary" routerLink="/hospital/requests">Back to blood requests</a>
+        </app-empty-state>
+      </div>
+    } @else {
+      <app-error-banner [message]="requestError()" (retry)="load()" />
+    }
+  }
+  @default {
+    @if (current(); as r) {
+      <app-page-header title="Blood request" [subtitle]="'Raised ' + (r.createdAt | relativeTime)">
+        <a class="btn btn-outline-secondary btn-sm" routerLink="/hospital/requests">All requests</a>
+        @if (isOpen()) {
+          <button type="button" class="btn btn-success btn-sm" (click)="fulfillOpen.set(true)">Mark fulfilled</button>
+          <button type="button" class="btn btn-outline-danger btn-sm" (click)="cancelOpen.set(true)">
+            Cancel request
+          </button>
+        }
+      </app-page-header>
+
+      <div class="card mb-3" [class.critical]="r.urgency === Critical && isOpen()">
+        <div class="card-body">
+          <div class="summary">
+            <app-blood-group-chip [group]="r.patientBloodGroup" />
+            <span class="need">
+              {{ r.unitsRequired }} {{ r.unitsRequired === 1 ? 'unit' : 'units' }} of {{ r.component | componentLabel }}
+            </span>
+            <app-status-badge [value]="r.urgency" />
+            <app-status-badge [value]="r.status" />
+          </div>
+
+          <p class="text-secondary mb-0 mt-2">
+            {{ r.acceptedCount }} {{ r.acceptedCount === 1 ? 'donor has' : 'donors have' }} accepted of
+            {{ r.askedCount }} asked.
+          </p>
+
+          @if (!isOpen()) {
+            <p class="mt-3 mb-0">
+              {{ isCancelled() ? 'Cancelled' : 'Fulfilled' }} on {{ formatDateTime(r.closedAt) }}.
+              @if (isCancelled() && r.cancellationReason) {
+                Reason: {{ r.cancellationReason }}
+              }
+            </p>
+          }
+        </div>
+      </div>
+
+      <div class="card mb-3">
+        <div class="card-body">
+          <h2 class="h6 mb-3">Donors asked</h2>
+
+          @switch (donorRequests().status) {
+            @case ('loading') {
+              <app-loading-state label="Loading donor requests..." />
+            }
+            @case ('error') {
+              <app-error-banner [message]="donorRequestError()" (retry)="loadDonorRequests()" />
+            }
+            @default {
+              <app-donor-request-list
+                [items]="donorRequestItems()"
+                [canAct]="isOpen()"
+                (viewContact)="contactTarget.set($event)"
+                (cancel)="withdrawTarget.set($event)"
+              />
+            }
+          }
+        </div>
+      </div>
+
+      @if (isOpen()) {
+        <div class="card">
+          <div class="card-body">
+            <h2 class="h6 mb-2">Matching donors</h2>
+
+            @switch (matches().status) {
+              @case ('loading') {
+                <app-loading-state label="Finding matching donors..." />
+              }
+              @case ('error') {
+                <app-error-banner [message]="matchError()" (retry)="loadMatches()" />
+              }
+              @default {
+                @if (matchList(); as list) {
+                  <app-match-list
+                    [bloodRequestId]="id"
+                    [matchList]="list"
+                    [askedReferences]="askedReferences()"
+                    [askedTotal]="donorRequestItems().length"
+                    (changed)="load(false)"
+                  />
+                }
+              }
+            }
+          </div>
+        </div>
+      }
+    }
+  }
+}
+
+@if (fulfillOpen()) {
+  <app-confirm-dialog
+    title="Mark this request as fulfilled?"
+    message="Donors who have not answered, or who accepted, will be told the request is closed. Contact details will no longer be available."
+    confirmLabel="Mark fulfilled"
+    [busy]="fulfilling()"
+    (confirmed)="confirmFulfill()"
+    (cancelled)="closeFulfill()"
+  />
+}
+
+@if (cancelOpen()) {
+  <app-cancel-request-dialog
+    [bloodRequestId]="id"
+    (done)="onCancelled()"
+    (dismissed)="cancelOpen.set(false)"
+    (stale)="onStale($event)"
+  />
+}
+
+@if (contactTarget(); as target) {
+  <app-contact-dialog
+    [bloodRequestId]="id"
+    [item]="target"
+    (closed)="contactTarget.set(null)"
+    (stale)="onStale($event)"
+  />
+}
+
+@if (withdrawTarget()) {
+  <app-confirm-dialog
+    title="Cancel the request to this donor?"
+    message="The donor will be told, and any contact number they shared is removed."
+    confirmLabel="Cancel request"
+    cancelLabel="Keep"
+    [danger]="true"
+    [busy]="withdrawing()"
+    (confirmed)="confirmWithdraw()"
+    (cancelled)="closeWithdraw()"
+  />
+}

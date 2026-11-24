@@ -44,7 +44,7 @@ export const routes: Routes = [
         data: { roles: [Roles.Donor] },
         children: [
           { path: '', pathMatch: 'full', redirectTo: 'dashboard' },
-                    {
+          {
             path: 'dashboard',
             loadComponent: () => import('./features/donor/dashboard/dashboard').then((m) => m.DonorDashboard),
           },
@@ -82,8 +82,11 @@ export const routes: Routes = [
             loadComponent: () =>
               import('./features/hospital/requests/new-request/new-request').then((m) => m.NewRequest),
           },
-          { path: 'requests/:id', loadComponent: statusPage, data: { title: 'Blood request', message: SOON } },
           {
+            path: 'requests/:id',
+            loadComponent: () =>
+              import('./features/hospital/requests/request-detail/request-detail').then((m) => m.RequestDetail),
+          }, {
             path: 'verification',
             loadComponent: () => import('./features/hospital/verification/verification').then((m) => m.Verification),
           },
@@ -92,12 +95,15 @@ export const routes: Routes = [
             loadComponent: () =>
               import('./features/hospital/compatibility/compatibility').then((m) => m.Compatibility),
           },
-          { path: 'profile', loadComponent: statusPage, data: { title: 'Hospital profile', message: SOON } },
+          {
+            path: 'profile',
+            loadComponent: () => import('./features/hospital/profile/profile').then((m) => m.HospitalProfilePage),
+          },
           {
             path: 'staff',
             canActivate: [roleGuard],
-            loadComponent: statusPage,
-            data: { roles: [Roles.HospitalAdmin], title: 'Staff', message: SOON },
+            data: { roles: [Roles.HospitalAdmin] },
+            loadComponent: () => import('./features/hospital/staff/staff').then((m) => m.StaffPage),
           },
         ],
       },
@@ -107,9 +113,21 @@ export const routes: Routes = [
         data: { roles: [Roles.SuperAdmin] },
         children: [
           { path: '', pathMatch: 'full', redirectTo: 'hospitals' },
-          { path: 'hospitals', loadComponent: statusPage, data: { title: 'Hospitals', message: SOON } },
-          { path: 'hospitals/new', loadComponent: statusPage, data: { title: 'New hospital', message: SOON } },
-          { path: 'hospitals/:id', loadComponent: statusPage, data: { title: 'Hospital', message: SOON } },
+          {
+            path: 'hospitals',
+            loadComponent: () =>
+              import('./features/admin/hospital-list/hospital-list').then((m) => m.AdminHospitalList),
+          },
+          {
+            path: 'hospitals/new',
+            loadComponent: () =>
+              import('./features/admin/hospital-new/hospital-new').then((m) => m.AdminHospitalNew),
+          },
+          {
+            path: 'hospitals/:id',
+            loadComponent: () =>
+              import('./features/admin/hospital-detail/hospital-detail').then((m) => m.AdminHospitalDetail),
+          },
         ],
       },
       {

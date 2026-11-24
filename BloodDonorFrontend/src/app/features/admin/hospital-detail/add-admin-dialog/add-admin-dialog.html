@@ -1,0 +1,64 @@
+<app-modal-dialog title="Add a hospital admin" [dismissible]="!busy()" (closed)="dismissed.emit()">
+  <p class="text-secondary">
+    This person will manage <strong>{{ hospitalName() }}</strong>: edit its details, add staff and do everything staff
+    can do.
+  </p>
+
+  @if (error()) {
+    <div class="alert alert-danger" role="alert">{{ error() }}</div>
+  }
+
+  <form id="add-admin-form" [formGroup]="form" (ngSubmit)="submit()" novalidate>
+    <app-form-field label="Email" controlId="admin-email" [error]="fieldError('email')">
+      <input
+        id="admin-email"
+        type="email"
+        class="form-control"
+        formControlName="email"
+        autocomplete="off"
+        autofocus
+        [class.is-invalid]="!!fieldError('email')"
+      />
+    </app-form-field>
+
+    <app-form-field
+      label="Temporary password"
+      controlId="admin-password"
+      hint="At least 6 characters with an upper case letter, a lower case letter, a digit and a symbol."
+      [error]="fieldError('password')"
+    >
+      <input
+        id="admin-password"
+        type="password"
+        class="form-control"
+        formControlName="password"
+        autocomplete="new-password"
+        [class.is-invalid]="!!fieldError('password')"
+      />
+    </app-form-field>
+
+    <app-form-field label="Confirm password" controlId="admin-confirm" [error]="fieldError('confirmPassword')">
+      <input
+        id="admin-confirm"
+        type="password"
+        class="form-control"
+        formControlName="confirmPassword"
+        autocomplete="new-password"
+        [class.is-invalid]="!!fieldError('confirmPassword')"
+      />
+    </app-form-field>
+  </form>
+
+  <ng-container ngProjectAs="[dialog-footer]">
+    <button type="button" class="btn btn-outline-secondary" [disabled]="busy()" (click)="dismissed.emit()">
+      Cancel
+    </button>
+    <button type="submit" form="add-admin-form" class="btn btn-primary" [disabled]="busy()">
+      @if (busy()) {
+        <span class="spinner-border spinner-border-sm me-2" aria-hidden="true"></span>Adding...
+      } @else {
+        Add admin
+      }
+    </button>
+  </ng-container>
+</app-modal-dialog>
